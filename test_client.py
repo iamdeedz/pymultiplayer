@@ -1,3 +1,6 @@
+# USED FOR TESTING
+# HAS NO USE IN PACKAGE
+
 import pymultiplayer as pmp
 from time import sleep
 
