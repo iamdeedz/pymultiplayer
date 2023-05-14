@@ -12,8 +12,8 @@ async def connection_handler(websocket):
     global sockets
     sockets.append(websocket)
     websocket.send(websocket)
-    helper_process = Process(target=start_helper, args=(websocket,))
-    helper_process.start()
+    helper_process = Process(target=helper, args=(websocket,))
+    asyncio.run(helper_process.start())
 
 
 async def main(port):
@@ -26,10 +26,6 @@ def host(port):
     global global_port
     global_port = port
     asyncio.run(main(port))
-
-
-def start_helper(socket):
-    asyncio.run(helper(socket))
 
 
 async def helper(og_socket):
