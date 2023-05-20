@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 # USED FOR TESTING
 # HAS NO USE IN PACKAGE
 
@@ -10,3 +11,5 @@ send = input("Send data? (Y/N): ")
 if send.upper() == "Y":
     pmp.send(socket, "print('Hello world!')")
 pmp.update(socket)
+=======
+>>>>>>> Stashed changes
