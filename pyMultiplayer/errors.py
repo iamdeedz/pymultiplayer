@@ -15,3 +15,9 @@ class ServerRefusedError(Exception):
         self.message = f"The server at {ip}:{port} refused the connection. This is likely due to the server not " \
                         f"existing (not at that port at least)."
         super().__init__(self.message)
+
+
+class NoTickFunctionError(Exception):
+    def __init__(self):
+        self.message = "No tick function was provided."
+        super().__init__(self.message)

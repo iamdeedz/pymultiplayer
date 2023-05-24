@@ -1,4 +1,4 @@
-import pymultiplayer as pmp
+from pymultiplayer import TCPMultiplayerServer
 
 
 def msg_received(client, msg):
@@ -8,6 +8,6 @@ def msg_received(client, msg):
 
 
 # Create a server object
-server = pmp.MultiplayerServer(protocol="TCP")
+server = TCPMultiplayerServer()
 
 server.set_msg_received_func(msg_received)

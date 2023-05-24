@@ -1,1 +1,1 @@
-from .pymultiplayer import MultiplayerServer, MultiplayerClient
+from .pymultiplayer import UDPMultiplayerServer, TCPMultiplayerServer, MultiplayerClient
