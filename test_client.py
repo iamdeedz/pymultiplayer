@@ -23,7 +23,7 @@ def loop():
                 if e.key == p.K_q:
                     client.send("Hello from client!")
         p.display.update()
-    return True
+        return True
 
 
 # Create a client object
