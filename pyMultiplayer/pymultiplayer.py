@@ -138,8 +138,12 @@ class InitialServer:
         self.server.set_fn_new_client(self.new_client)
         self.server.run_forever(threaded=True)
 
+    def send_to_main_server(self):
+        self.server.send_message_to_all(f"ws://{self.ip}:{self.port + 1}")
+
     def new_client(self, client, server):
         print(f"Client with id {client['id']} connected.")
+        self.send_to_main_server()
 
     def set_new_client_func(self, func):
         self.server.set_fn_new_client(func)
@@ -149,11 +153,13 @@ class InitialServer:
 
 
 class MultiplayerClient:
-    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None):
+    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None, *args):
         if tick_func is None:
             raise NoTickFunctionError
+
         else:
             self.tick_func = tick_func
+            self.tick_func_args = args + (self,)
         self.ip = ip
         self.port = port
         self.server = None
@@ -166,6 +172,7 @@ class MultiplayerClient:
             ws.connect(f"ws://{self.ip}:{self.port}")
             main_server = ws.recv()
             ws.close()
+
         except OSError:
             raise ServerRefusedError(self.ip, self.port)
 
@@ -177,9 +184,15 @@ class MultiplayerClient:
             self.server = websocket.WebSocketApp(main_server)
 
             self.server.run_forever(dispatcher=rel)
+
             rel.signal(2, self.disconnect)
-            rel.timeout(1, self.tick_func)
-            rel.dispatch()
+            rel.timeout(1, self.tick_func, self.tick_func_args)
+
+            try:
+                rel.dispatch()
+
+            except ConnectionResetError:
+                raise ServerClosedError()
 
         else:
 
@@ -191,8 +204,10 @@ class MultiplayerClient:
     def disconnect(self):
         if self.protocol == "TCP":
             self.server.send("goodbye")
+
         else:
             self.server.sendto(str.encode("goodbye"), (self.ip, self.port + 1))
+        rel.abort()
 
     def send(self, msg):
         if self.protocol == "TCP":
@@ -214,7 +229,7 @@ class MultiplayerClient:
             self.server.on_message = func
 
         else:
-            self.msg_received = func
+            self.msg_received = func # NOQA
 
     def set_on_error_func(self, func):
         if self.protocol == "TCP":
@@ -228,7 +243,7 @@ class MultiplayerClient:
             self.server.on_close = func
 
         else:
-            self.on_close = func
+            self.on_close = func # NOQA
 
     def msg_handler(self):
         while True:

@@ -21,3 +21,9 @@ class NoTickFunctionError(Exception):
     def __init__(self):
         self.message = "No tick function was provided."
         super().__init__(self.message)
+
+
+class ServerClosedError(Exception):
+    def __init__(self):
+        self.message = "The server forcibly closed the connection. This is likely due to the server encountering an error." # NOQA
+        super().__init__(self.message)
