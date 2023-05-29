@@ -14,8 +14,9 @@ def init():
     p.display.set_caption("Test Client")
 
 
-def loop(*args):
-    client = args[0][0]
+def loop(args):
+    print(args)
+    client = args[0]
     while True:
         for e in p.event.get():
             if e.type == p.QUIT:
@@ -36,3 +37,5 @@ init()
 client = pmp.MultiplayerClient(tick_func=loop)
 
 client.set_msg_received_func(msg_received)
+
+dispatch()

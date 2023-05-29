@@ -153,13 +153,17 @@ class InitialServer:
 
 
 class MultiplayerClient:
-    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None, *args):
+    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None, args=None):
+        if args is None:
+            args = []
+
         if tick_func is None:
             raise NoTickFunctionError
 
         else:
             self.tick_func = tick_func
-            self.tick_func_args = args + (self,)
+            self.tick_func_args = [self] + args
+
         self.ip = ip
         self.port = port
         self.server = None
@@ -229,7 +233,7 @@ class MultiplayerClient:
             self.server.on_message = func
 
         else:
-            self.msg_received = func # NOQA
+            self.msg_received = func  # NOQA
 
     def set_on_error_func(self, func):
         if self.protocol == "TCP":
@@ -243,7 +247,7 @@ class MultiplayerClient:
             self.server.on_close = func
 
         else:
-            self.on_close = func # NOQA
+            self.on_close = func  # NOQA
 
     def msg_handler(self):
         while True:
@@ -253,4 +257,3 @@ class MultiplayerClient:
                 self.on_close()
 
             self.msg_received(msg.decode())
-
