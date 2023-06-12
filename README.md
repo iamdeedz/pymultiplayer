@@ -1,2 +1,4 @@
 # pymultiplayer
-Package for adding multiplayer functionality to python games.
+A package for adding multiplayer functionality to games.
+
+
