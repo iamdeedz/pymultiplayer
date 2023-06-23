@@ -1,41 +1,30 @@
 import pymultiplayer as pmp
 import pygame as p
-from rel import dispatch
 
 
 def msg_received(msg):
     print(f"Server sent message: {msg}")
 
 
-def init():
+def loop(*args):
     p.init()
-    p.display.set_mode((100, 100))
-    p.display.update()
-    p.display.set_caption("Test Client")
-
-
-def loop(args):
-    print(args)
+    fps = 60
     client = args[0]
+    screen = p.display.set_mode((500, 500))
+    p.display.set_caption("Test Client")
+    clock = p.time.Clock()
     while True:
         for e in p.event.get():
             if e.type == p.QUIT:
                 client.disconnect()
-                quit()
+                p.quit()
+                quit(0)
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_q:
-                    print(client.send)
-                    client.send("Hello from client!")
-                    print("Sent message to server.")
+                    client.send("Q was pressed.")
+        screen.fill(p.Color("white"))
+        clock.tick(fps)
         p.display.update()
-        return True
 
 
-init()
-
-# Create a client object
 client = pmp.MultiplayerClient(tick_func=loop)
-
-client.set_msg_received_func(msg_received)
-
-dispatch()

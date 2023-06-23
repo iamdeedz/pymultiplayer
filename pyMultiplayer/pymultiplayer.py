@@ -99,6 +99,7 @@ class TCPMultiplayerServer:
         print(f"Hosting server at IP address {socket.gethostbyname(socket.gethostname())} on port {self.port}. "
               "Share this with friends to play together!")
 
+    def run_forever(self):
         self.server.run_forever()
 
     def send(self, msg, client):
@@ -109,6 +110,9 @@ class TCPMultiplayerServer:
 
     def new_client(self, client, server):
         self.clients.append(client)
+
+    def msg_received(self):
+        pass
 
     def set_msg_received_func(self, func):
         self.server.set_fn_message_received(func)
@@ -142,7 +146,6 @@ class InitialServer:
         self.server.send_message_to_all(f"ws://{self.ip}:{self.port + 1}")
 
     def new_client(self, client, server):
-        print(f"Client with id {client['id']} connected.")
         self.send_to_main_server()
 
     def set_new_client_func(self, func):
@@ -153,16 +156,14 @@ class InitialServer:
 
 
 class MultiplayerClient:
-    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None, args=None):
-        if args is None:
-            args = []
+    def __init__(self, ip="127.0.0.1", port=1300, tick_func=None, args=()):
 
         if tick_func is None:
-            raise NoTickFunctionError
+            raise NoTickFunctionError()
 
         else:
             self.tick_func = tick_func
-            self.tick_func_args = [self] + args
+            self.tick_func_args = (self,) + args
 
         self.ip = ip
         self.port = port
@@ -190,7 +191,7 @@ class MultiplayerClient:
             self.server.run_forever(dispatcher=rel)
 
             rel.signal(2, self.disconnect)
-            rel.timeout(1, self.tick_func, self.tick_func_args)
+            rel.timeout(1, self.tick_func, *self.tick_func_args)
 
             try:
                 rel.dispatch()
@@ -211,6 +212,7 @@ class MultiplayerClient:
 
         else:
             self.server.sendto(str.encode("goodbye"), (self.ip, self.port + 1))
+
         rel.abort()
 
     def send(self, msg):
