@@ -169,7 +169,6 @@ class MultiplayerClient:
         self.port = port
         self.server = None
         self.protocol = None
-        self.connect()
 
     def connect(self):
         try:
@@ -214,6 +213,7 @@ class MultiplayerClient:
             self.server.sendto(str.encode("goodbye"), (self.ip, self.port + 1))
 
         rel.abort()
+        quit()
 
     def send(self, msg):
         if self.protocol == "TCP":
