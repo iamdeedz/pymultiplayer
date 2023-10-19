@@ -1,15 +1,17 @@
-import websockets
-import asyncio
+from pymultiplayer.client import MultiplayerClient
 
 
-async def main():
-    uri = "ws://127.0.0.1:1300"
-    async with websockets.connect(uri) as websocket:
-        print("Connected")
-        msg = "Hello world!"
-        print(f'Sending "{msg}" to server...')
-        await websocket.send(msg)
-        print(f'server sent "{await websocket.recv()}"')
+async def msg_handler(msg, websocket):
+    print("server sent:", msg)
 
 
-asyncio.run(main())
+async def proxy(websocket):
+    print("Connected")
+    msg = input("enter message: ")
+    await websocket.send(msg)
+    await client.msg_handler(websocket)
+
+
+if __name__ == "__main__":
+    client = MultiplayerClient(msg_handler)
+    client.run(proxy)
