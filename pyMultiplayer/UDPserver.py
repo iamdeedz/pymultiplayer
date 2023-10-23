@@ -1,5 +1,5 @@
 import socket
-from multiprocessing import Process
+from threading import Thread
 
 
 class UDPMultiplayerServer:

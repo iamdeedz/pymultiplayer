@@ -9,6 +9,10 @@ class MultiplayerClient:
 
     async def _run(self, proxy):
         async with websockets.connect(f"ws://{self.ip}:{self.port}") as websocket:
+            uri = await websocket.recv()
+            await websocket.close()
+
+        async with websockets.connect(uri) as websocket:
             await proxy(websocket)
 
     async def msg_handler(self, websocket):

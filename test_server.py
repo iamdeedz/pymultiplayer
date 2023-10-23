@@ -1,17 +1,18 @@
 from pymultiplayer.TCPserver import TCPMultiplayerServer
+from time import sleep
 
 
-async def msg_handler(msg, websocket):
-    print("client sent:", msg)
-    print("sending back:", msg)
-    await websocket.send(msg)
+async def msg_handler(msg, client):
+    print(f"Client with id {client.id}:", msg)
+    print("Sending back:", msg)
+    await client.ws.send(msg)
 
 
-async def proxy(websocket):
-    print("Connected")
-    await server.msg_handler(websocket)
+async def auth_func(websocket):
+    print("Authenticating...")
+    print("Authenticated!")
 
 
 if __name__ == "__main__":
-    server = TCPMultiplayerServer(msg_handler)
-    server.run(proxy)
+    server = TCPMultiplayerServer(msg_handler, auth_func=auth_func)
+    server.run()
