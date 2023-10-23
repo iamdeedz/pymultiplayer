@@ -1,4 +1,5 @@
 from pymultiplayer.TCPserver import TCPMultiplayerServer
+import websockets
 
 
 async def msg_handler(msg, client):
@@ -9,7 +10,25 @@ async def msg_handler(msg, client):
 
 async def auth_func(websocket):
     print("Authenticating...")
-    print("Authenticated!")
+    await websocket.send("login")
+    name = await websocket.recv()
+    password = await websocket.recv()
+    async with websockets.connect("ws://localhost:3000") as ws:
+        await ws.recv()
+        await ws.send(name)
+        await ws.send(password)
+        response = await ws.recv()
+        await ws.close()
+
+    if response == "success":
+        print("Authenticated.")
+        await websocket.send("success")
+
+    else:
+        print("Authentication failed.")
+        await websocket.send("failure")
+        await websocket.close()
+
 
 
 if __name__ == "__main__":
