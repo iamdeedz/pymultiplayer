@@ -1,5 +1,4 @@
 from pymultiplayer.TCPserver import TCPMultiplayerServer
-from time import sleep
 
 
 async def msg_handler(msg, client):
