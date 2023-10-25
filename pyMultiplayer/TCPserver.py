@@ -27,15 +27,16 @@ class TCPMultiplayerServer:
             raise PortInUseError(self.port)
 
     async def proxy(self, websocket, path):
-        client = _Client(websocket, self.last_id + 1)
+        new_client = _Client(websocket, self.last_id + 1)
         self.last_id += 1
 
         try:
-            self.clients.add(client)
+            self.clients.add(new_client)
+            await websocket.send(dumps({"type": "id", "content": new_client.id}))
             for client in self.clients:
                 if client.ws == websocket:
                     continue
-                msg = {"type": "client_joined", "content": client.id}
+                msg = {"type": "client_joined", "content": new_client.id}
                 await client.ws.send(dumps(msg))
             print(f"Client with id {self.last_id} connected")
             async for msg_json in websocket:
@@ -44,7 +45,7 @@ class TCPMultiplayerServer:
                 await self.msg_handler(msg, client)
 
         finally:
-            self.clients.remove(client)
+            self.clients.remove(new_client)
             msg = {"type": "client_left", "content": client.id}
             self.broadcast(dumps(msg))
 
