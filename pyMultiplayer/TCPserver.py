@@ -2,6 +2,7 @@ import websockets, asyncio
 from ._ws_client import _Client
 from .initial_server import InitialServer
 from threading import Thread
+from json import dumps, loads
 
 
 class TCPMultiplayerServer:
@@ -19,8 +20,11 @@ class TCPMultiplayerServer:
         websockets.broadcast(client_websockets, msg)
 
     async def _run(self):
-        async with websockets.serve(self.proxy, self.ip, self.port + 1):
-            await asyncio.Future()
+        try:
+            async with websockets.serve(self.proxy, self.ip, self.port + 1):
+                await asyncio.Future()
+        except OSError:
+            raise PortInUseError(self.port)
 
     async def proxy(self, websocket, path):
         client = _Client(websocket, self.last_id + 1)
@@ -31,15 +35,18 @@ class TCPMultiplayerServer:
             for client in self.clients:
                 if client.ws == websocket:
                     continue
-                await client.ws.send(f"Client with id {client.id} connected")
-            print(f"Client with id {client.id} connected")
-            async for msg in websocket:
+                msg = {"type": "client_joined", "content": client.id}
+                await client.ws.send(dumps(msg))
+            print(f"Client with id {self.last_id} connected")
+            async for msg_json in websocket:
                 client = [client for client in self.clients if client.ws == websocket][0]
+                msg = loads(msg_json)
                 await self.msg_handler(msg, client)
 
         finally:
             self.clients.remove(client)
-            self.broadcast(f"Client with id {client.id} disconnected")
+            msg = {"type": "client_left", "content": client.id}
+            self.broadcast(dumps(msg))
 
 
     def run(self):

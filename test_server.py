@@ -1,11 +1,12 @@
 from pymultiplayer.TCPserver import TCPMultiplayerServer
+from json import dumps
 import websockets
 
 
 async def msg_handler(msg, client):
-    print(f"Client with id {client.id}:", msg)
-    print("Sending back:", msg)
-    await client.ws.send(msg)
+    print(f"Client with id {client.id}:", msg["content"])
+    print("Sending back:", msg["content"])
+    await client.ws.send(dumps(msg))
 
 
 async def auth_func(websocket):
@@ -22,11 +23,13 @@ async def auth_func(websocket):
 
     if response == "success":
         print("Authenticated.")
-        await websocket.send("success")
+        msg = {"type": "authentication", "content": "success"}
+        await websocket.send(dumps(msg))
 
     else:
         print("Authentication failed.")
-        await websocket.send("failure")
+        msg = {"type": "authentication", "content": "failure"}
+        await websocket.send(dumps(msg))
         await websocket.close()
 
 
