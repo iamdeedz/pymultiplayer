@@ -7,6 +7,8 @@ class MultiplayerClient:
     def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_handler=None):
         self.ip = ip
         self.port = port
+        self.ws = None
+        self.id = None
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
@@ -26,18 +28,24 @@ class MultiplayerClient:
                 await websocket.close()
 
             async with websockets.connect(uri) as websocket:
+                self.ws = websocket
                 await proxy(websocket)
 
         except OSError:
-            raise ServerRefusedError(self.ip, self.port)
+            raise ServerUnreachableError(self.ip, self.port)
 
-    async def msg_handler(self, websocket):
+    async def msg_handler(self):
         try:
-            async for msg_json in websocket:
+            async for msg_json in self.ws:
                 msg = loads(msg_json)
                 if msg["type"] == "error":
                     raise ServerError(msg["content"])
-                await self._msg_handler(msg, websocket)
+
+                elif msg["type"] == "id":
+                    self.id = msg["content"]
+                    print(self.id)
+
+                await self._msg_handler(msg, self.ws)
         
         except websockets.exceptions.ConnectionClosedError:
             raise ServerClosedError()

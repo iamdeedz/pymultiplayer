@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pymultiplayer"
+version = "0.1"
+authors = [
+  { name="iamdeedz" },
+]
+description = "A package for adding multiplayer functionality to python games."
+readme = "README.md"
+requires-python = ">=3"
+[project.urls]
+"Homepage" = "https://github.com/iamdeedz/pymultiplayer"
+"Bug Tracker" = "https://github.com/iamdeedz/pymultiplayer/issues"
