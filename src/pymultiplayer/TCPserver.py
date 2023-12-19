@@ -2,6 +2,7 @@ import websockets, asyncio
 from ._ws_client import _Client
 from .errors import PortInUseError
 from .initial_server import InitialServer
+from .errors import PortInUseError
 from threading import Thread
 from json import dumps, loads
 
@@ -38,11 +39,10 @@ class TCPMultiplayerServer:
         try:
             self.clients.add(new_client)
             await websocket.send(dumps({"type": "id", "content": new_client.id}))
-            for client in self.clients:
-                if client.ws == websocket:
-                    continue
-                msg = {"type": "client_joined", "content": new_client.id}
-                await client.ws.send(dumps(msg))
+
+            msg = {"type": "client_joined", "content": new_client.id}
+            self.send_to_all_except(new_client, dumps(msg))
+
             print(f"Client with id {self.last_id} connected")
             async for msg_json in websocket:
                 client = [client for client in self.clients if client.ws == websocket][0]
