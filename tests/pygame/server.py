@@ -1,10 +1,10 @@
 from pymultiplayer import TCPMultiplayerServer
-from json import dumps, loads
+from json import dumps
 
 
 async def msg_handler(msg, client):
-    if msg["type"] == "greeting":
-        await client.ws.send(dumps())
+    if msg["type"] == "update":
+        server.send_to_all_except(client, dumps(msg))
 
 
 if __name__ == "__main__":

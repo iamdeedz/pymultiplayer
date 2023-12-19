@@ -1,4 +1,4 @@
-from pymultiplayer.client import MultiplayerClient
+from pymultiplayer import MultiplayerClient
 from pymultiplayer.errors import ServerError
 from json import dumps, loads
 
@@ -22,17 +22,16 @@ async def auth_handler(websocket):
         await websocket.close()
 
 
-async def msg_handler(msg_json, websocket):
-    msg = loads(msg_json)
-    print("server sent:", msg["content"])
+async def msg_handler(msg):
+    print("Server sent:", msg["content"])
 
 
 async def proxy(websocket):
     print("Connected")
-    txt = input("enter message: ")
+    txt = input("Enter message: ")
     msg = {"type": "message", "content": txt}
     await websocket.send(dumps(msg))
-    await client.msg_handler(websocket)
+    await client.msg_handler()
 
 
 if __name__ == "__main__":
