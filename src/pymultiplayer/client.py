@@ -29,6 +29,7 @@ class MultiplayerClient:
 
             async with websockets.connect(uri) as websocket:
                 self.ws = websocket
+                websocket.send(dumps({"type": "greeting"}))
                 await proxy(websocket)
 
         except OSError:
@@ -45,7 +46,7 @@ class MultiplayerClient:
                     self.id = msg["content"]
                     print(self.id)
 
-                await self._msg_handler(msg, self.ws)
+                await self._msg_handler(msg)
         
         except websockets.exceptions.ConnectionClosedError:
             raise ServerClosedError()
