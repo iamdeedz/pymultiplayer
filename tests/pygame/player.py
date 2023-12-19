@@ -3,4 +3,4 @@ class Player:
         self.colour = ((id-1)*50, (id-1)*50, (id-1)*50)
         self.width = self.height = 50
         self.x = 0
-        self.y = (id-1)*self.width
+        self.y = (id-1)*self.height

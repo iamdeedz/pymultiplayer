@@ -1,6 +1,8 @@
 import websockets
 import asyncio
 
+# This acts as an external server that the server connects to so that it can authenticate clients.
+
 
 async def proxy(websocket):
     print("Connected")
@@ -15,7 +17,6 @@ async def proxy(websocket):
 
     else:
         await websocket.send("failure")
-
 
 
 async def main():

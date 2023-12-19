@@ -10,6 +10,13 @@ async def msg_handler(msg, client):
 
 
 async def auth_func(websocket):
+    # This is a very basic authentication function. It connects to an external server and sends the name and password
+    # sent by the client. If the server responds with "success", the client is authenticated. Otherwise, the client
+    # is not authenticated and the connection is closed.
+
+    # You do not need to use an external server to authenticate clients. You can use a database for example. This is
+    # just an example.
+
     print("Authenticating...")
     await websocket.send("login")
     name = await websocket.recv()
@@ -31,7 +38,6 @@ async def auth_func(websocket):
         msg = {"type": "authentication", "content": "failure"}
         await websocket.send(dumps(msg))
         await websocket.close()
-
 
 
 if __name__ == "__main__":
