@@ -22,8 +22,8 @@ async def auth_handler(websocket):
         await websocket.close()
 
 
-async def msg_handler(msg, websocket):
-    print("server sent:", msg["content"])
+async def msg_handler(msg):
+    print("Server sent:", msg["content"])
 
 
 async def proxy(websocket):
