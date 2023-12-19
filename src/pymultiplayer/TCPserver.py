@@ -1,5 +1,6 @@
 import websockets, asyncio
 from ._ws_client import _Client
+from .errors import PortInUseError
 from .initial_server import InitialServer
 from threading import Thread
 from json import dumps, loads
@@ -17,6 +18,10 @@ class TCPMultiplayerServer:
 
     def broadcast(self, msg):
         client_websockets = [client.ws for client in self.clients]
+        websockets.broadcast(client_websockets, msg)
+
+    def send_to_all_except(self, client, msg):
+        client_websockets = [client.ws for client in self.clients if client != client]
         websockets.broadcast(client_websockets, msg)
 
     async def _run(self):
@@ -48,7 +53,6 @@ class TCPMultiplayerServer:
             self.clients.remove(new_client)
             msg = {"type": "client_left", "content": client.id}
             self.broadcast(dumps(msg))
-
 
     def run(self):
         asyncio.run(self._run())
