@@ -6,6 +6,7 @@ import pygame as p
 self = None
 other_players = []
 velocity = 5
+running = True
 
 
 def send_update():
@@ -58,6 +59,7 @@ async def proxy(websocket):
     while running:
         await client.msg_handler()
         await main()
+
 
 
 if __name__ == "__main__":

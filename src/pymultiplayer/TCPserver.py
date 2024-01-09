@@ -51,8 +51,9 @@ class TCPMultiplayerServer:
 
         finally:
             self.clients.remove(new_client)
-            msg = {"type": "client_left", "content": client.id}
+            msg = {"type": "client_left", "content": self.last_id}
             self.broadcast(dumps(msg))
+            await websocket.close()
 
     def run(self):
         asyncio.run(self._run())

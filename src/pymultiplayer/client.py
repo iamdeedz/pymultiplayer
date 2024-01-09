@@ -29,7 +29,7 @@ class MultiplayerClient:
 
             async with websockets.connect(uri) as websocket:
                 self.ws = websocket
-                websocket.send(dumps({"type": "greeting"}))
+                self.id = loads(await websocket.recv())["content"]
                 await proxy(websocket)
 
         except OSError:
