@@ -1,5 +1,5 @@
 ## pymultiplayer
-A package for adding multiplayer functionality to games.
+A library for adding multiplayer functionality to python games.
 
 ## Note
 This is a work in progress. Don't expect all features to work.
@@ -57,17 +57,25 @@ class TCPMultiplayerServer:
 - `auth_func` - If you want to use authentication, you can pass a function here. If an auth_func is given, it will be run every time a client connects. Takes in the websocket connection. Take a look at [this](tests/echo+basic_auth) example. The auth code is in server.py and authenticator.py.
 
 #### Usage
-First of all, you need to create the required function(s).
+Full examples of these functions will be uploaded to [iamdeedz.github.io](https://iamdeedz.github.io) in due course but for now, here's a basic example.
+
+Let's start with the server.
+
+First, create a file called `server.py`.
+
+Now, create the required function(s).
 
 ```python
+# server.py
+
 def msg_handler(msg, client):
     print(f"Received message from {client}: {msg}")
 ```
 
-Full examples of these functions will be uploaded to [iamdeedz.github.io](https://iamdeedz.github.io) in due course but for now, here's a basic example.
-
-Then, you need to create the server object.
+Then, create the server object.
 ```python
+# server.py
+
 from pymultiplayer import TCPMultiplayerServer
 
 def msg_handler(msg, client):
@@ -77,5 +85,15 @@ server = TCPMultiplayerServer(msg_handler)
 
 ```
 
----
->>>>>>> Stashed changes
+Next, run the server.
+```python
+# server.py
+
+from pymultiplayer import TCPMultiplayerServer
+
+def msg_handler(msg, client):
+    print(f"Received message from {client}: {msg}")
+
+server = TCPMultiplayerServer(msg_handler)
+server.run()
+```
