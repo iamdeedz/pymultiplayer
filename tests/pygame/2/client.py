@@ -1,25 +1,41 @@
 from pymultiplayer import MultiplayerClient
-from json import dumps
 from player import Player
+from json import dumps
 import pygame as p
 
 self = None
 other_players = []
-velocity = 5
 running = True
+velocity = 5
 
 
 async def send_update():
     msg = {"type": "update", "content": {"x": self.x, "y": self.y}, "id": self.id}
-    print(msg)
     await client.send(dumps(msg))
+    print("Sent update")
 
 
-async def main():
+def msg_handler(msg):
+    print(msg)
+    if msg["type"] == "client_joined":
+        other_players.append(Player(msg["content"]))
+
+    elif msg["type"] == "client_left":
+        for player in other_players:
+            if player.id == msg["content"]:
+                other_players.remove(player)
+
+    elif msg["type"] == "update":
+        for player in other_players:
+            if player.id == msg["id"]:
+                player.x = msg["content"]["x"]
+                player.y = msg["content"]["y"]
+
+
+async def game():
     for event in p.event.get():
         if event.type == p.QUIT:
-            global running
-            running = False
+            return False
 
         elif event.type == p.KEYDOWN:
             if event.key == p.K_UP:
@@ -36,49 +52,31 @@ async def main():
 
             await send_update()
 
-    print("a")
     screen.fill((0, 0, 0))
-    print("0")
+
+    p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
     for player in other_players:
         p.draw.rect(screen, player.colour, (player.x, player.y, player.width, player.height))
-    print("1")
-    p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
-    print("2")
+
+    clock.tick(60)
     p.display.update()
-    print("3")
-
-
-async def msg_handler(msg):
-    if msg["type"] == "client_joined":
-        print("Client joined")
-        global other_players
-        other_players.append(Player(msg["content"]))
-
-    elif msg["type"] == "client_left":
-        print("Client left")
-        for player in other_players:
-            if player.id == msg["content"]:
-                other_players.remove(player)
-                break
+    return True
 
 
 async def proxy(websocket):
-    global self
+    global self, running
     self = Player(client.id + 1)
+
     while running:
         await client.handle_msgs()
-        await main()
-
-    p.quit()
-    client.disconnect()
+        running = await game()
 
 
 if __name__ == "__main__":
     p.init()
-    p.display.set_caption("Multiplayer Test")
     screen = p.display.set_mode((500, 500))
+    p.display.set_caption("Client")
     clock = p.time.Clock()
-    running = True
 
     client = MultiplayerClient(msg_handler)
     client.run(proxy)
