@@ -22,4 +22,6 @@ def client_left(client):
 
 if __name__ == "__main__":
     server = TCPMultiplayerServer(msg_handler)
+    server.set_client_joined_func(client_joined)
+    server.set_client_left_func(client_left)
     server.run()

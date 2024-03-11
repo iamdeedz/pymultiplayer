@@ -32,45 +32,38 @@ def msg_handler(msg):
                 player.y = msg["content"]["y"]
 
 
-async def game():
-    for event in p.event.get():
-        if event.type == p.QUIT:
-            return False
-
-        elif event.type == p.KEYDOWN:
-            if event.key == p.K_UP:
-                self.y -= velocity
-
-            elif event.key == p.K_DOWN:
-                self.y += velocity
-
-            elif event.key == p.K_LEFT:
-                self.x -= velocity
-
-            elif event.key == p.K_RIGHT:
-                self.x += velocity
-
-            await send_update()
-
-    screen.fill((0, 0, 0))
-
-    p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
-    for player in other_players:
-        p.draw.rect(screen, player.colour, (player.x, player.y, player.width, player.height))
-
-    clock.tick(60)
-    p.display.update()
-    return True
-
-
 async def proxy(websocket):
     global self, running
     self = Player(client.id + 1)
 
     while running:
-        await client.handle_msgs()
-        running = await game()
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                running = False
 
+            elif event.type == p.KEYDOWN:
+                if event.key == p.K_UP:
+                    self.y -= velocity
+
+                elif event.key == p.K_DOWN:
+                    self.y += velocity
+
+                elif event.key == p.K_LEFT:
+                    self.x -= velocity
+
+                elif event.key == p.K_RIGHT:
+                    self.x += velocity
+
+                await send_update()
+
+        screen.fill((0, 0, 0))
+
+        p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
+        for player in other_players:
+            p.draw.rect(screen, player.colour, (player.x, player.y, player.width, player.height))
+
+        clock.tick(60)
+        p.display.update()
 
 if __name__ == "__main__":
     p.init()
