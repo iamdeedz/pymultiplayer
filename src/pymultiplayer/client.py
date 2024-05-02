@@ -40,18 +40,6 @@ class MultiplayerClient:
         except OSError:
             raise ServerUnreachableError(self.ip, self.port)
 
-    """
-        if msg["type"] == "error":
-            raise ServerError(msg["content"])
-
-        elif msg["type"] == "id":
-            self.id = msg["content"]
-            print(self.id)
-
-        await self._msg_handler(msg)
-        
-    """
-
     def run(self, proxy):
         asyncio.run(self._run(proxy))
 

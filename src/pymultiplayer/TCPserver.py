@@ -59,17 +59,12 @@ class TCPMultiplayerServer:
 
             self.client_joined_func(new_client)
 
-            print("Waiting for messages")
             while True:
-                print("Before message received")
                 async for msg_json in websocket:
-                    print("Message received")
                     msg = loads(msg_json)
                     self.msg_handler(msg, new_client)
-                    print("Message handled")
 
         finally:
-            print("Ending")
             self.clients.remove(new_client)
             self.client_left_func(new_client)
             msg = {"type": "client_left", "content": new_client.id}
