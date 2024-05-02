@@ -4,7 +4,6 @@ from json import dumps
 
 def msg_handler(msg, client):
     print(f"Client with id {client.id}:", msg["content"])
-    print("Broadcasting")
     server.broadcast(dumps(msg))
 
 

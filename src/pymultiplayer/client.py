@@ -1,15 +1,7 @@
 import websockets, asyncio
 from .errors import ServerError, ServerClosedError, ServerUnreachableError
 from json import loads
-from threading import Thread
-
-msg_list = []
-
-
-async def add_msgs_to_list(ws):
-    global msg_list
-    async for msg_json in ws:
-        msg_list.append(loads(msg_json))
+from threading import Thread, Event
 
 
 class MultiplayerClient:
@@ -18,6 +10,7 @@ class MultiplayerClient:
         self.port = port
         self.ws = None
         self.id = None
+        self.event = None
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
@@ -39,21 +32,15 @@ class MultiplayerClient:
             async with websockets.connect(uri) as websocket:
                 self.ws = websocket
                 self.id = loads(await websocket.recv())["content"]
-                thread = Thread(target=asyncio.run, args=(add_msgs_to_list(websocket),))
-                thread.start()
+                t = Thread(target=self.start_websocket_thread)
+                t.start()
+                self.event = Event()
                 await proxy(websocket)
 
         except OSError:
             raise ServerUnreachableError(self.ip, self.port)
 
-    async def handle_msgs(self):
-        for msg in msg_list:
-            await self.handle_msg(msg)
-
-    async def handle_msg(self, msg):
-        global msg_list
-        msg_list.remove(msg)
-
+    """
         if msg["type"] == "error":
             raise ServerError(msg["content"])
 
@@ -62,6 +49,8 @@ class MultiplayerClient:
             print(self.id)
 
         await self._msg_handler(msg)
+        
+    """
 
     def run(self, proxy):
         asyncio.run(self._run(proxy))
@@ -70,4 +59,17 @@ class MultiplayerClient:
         self.ws.close()
 
     async def send(self, msg):
-        await self.ws.send(msg)
+        await asyncio.ensure_future(self.ws.send(msg))
+
+    async def websocket_handler(self):
+        async for msg in self.ws:
+            await self._msg_handler(msg)
+
+        await self.ws.close()
+        quit()
+
+    def start_websocket_thread(self):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        loop.run_until_complete(self.websocket_handler())

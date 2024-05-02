@@ -18,15 +18,11 @@ class TCPMultiplayerServer:
 
     def broadcast(self, msg):
         client_websockets = [client.ws for client in self.clients]
-        print("Broadcasting")
         websockets.broadcast(client_websockets, msg)
-        print("Broadcasted")
 
     def send_to_all_except(self, client, msg):
         client_websockets = [client.ws for client in self.clients if client != client]
-        print("Sending to all except", client.id)
         websockets.broadcast(client_websockets, msg)
-        print("Sent to all except", client.id)
 
     def send_to(self, client, msg):
         client.ws.send(msg)
@@ -50,7 +46,7 @@ class TCPMultiplayerServer:
         except OSError:
             raise PortInUseError(self.port)
 
-    async def proxy(self, websocket, path):
+    async def proxy(self, websocket):
         new_client = _Client(websocket, self.last_id + 1)
         self.last_id += 1
 
@@ -64,13 +60,16 @@ class TCPMultiplayerServer:
             self.client_joined_func(new_client)
 
             print("Waiting for messages")
-            async for msg_json in websocket:
-                print("Message received")
-                msg = loads(msg_json)
-                self.msg_handler(msg, new_client.id)
-                print("Message handled")
+            while True:
+                print("Before message received")
+                async for msg_json in websocket:
+                    print("Message received")
+                    msg = loads(msg_json)
+                    self.msg_handler(msg, new_client)
+                    print("Message handled")
 
         finally:
+            print("Ending")
             self.clients.remove(new_client)
             self.client_left_func(new_client)
             msg = {"type": "client_left", "content": new_client.id}
