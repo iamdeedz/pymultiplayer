@@ -65,8 +65,8 @@ async def proxy(websocket):
         screen.fill((0, 0, 0))
 
         p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
-        print("Other players: ", other_players)
         for player in other_players:
+            print(f"ID: {player.id}, Colour: {player.colour}, X: {player.x}, Y: {player.y}, Width: {player.width}, Height: {player.height}")
             p.draw.rect(screen, player.colour, (player.x, player.y, player.width, player.height))
 
         clock.tick(60)
