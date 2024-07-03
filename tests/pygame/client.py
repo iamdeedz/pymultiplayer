@@ -19,7 +19,7 @@ async def msg_handler(msg):
     msg = loads(msg)
     print("Message received: ", msg)
     if msg["type"] == "client_joined":
-        other_players.append(Player(msg["content"]))
+        other_players.append(Player(msg["content"]+1))
 
     elif msg["type"] == "client_left":
         for player in other_players:
@@ -46,6 +46,7 @@ async def proxy(websocket):
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
+                client.disconnect()
 
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_UP:
