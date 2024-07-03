@@ -76,7 +76,7 @@ class TCPMultiplayerServer:
 
         finally:
             self.clients.remove(new_client)
-            self.client_left_func(new_client)
+            await self.client_left_func(new_client)
             msg = {"type": "client_left", "content": new_client.id}
             self.broadcast(dumps(msg))
             await websocket.close()
