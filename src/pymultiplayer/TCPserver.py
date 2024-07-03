@@ -18,13 +18,11 @@ class TCPMultiplayerServer:
 
     def broadcast(self, msg):
         client_websockets = [client.ws for client in self.clients]
-        print("Broadcasting to: ", client_websockets)
         for ws in client_websockets:
             asyncio.create_task(self._send(ws, msg))
 
     def send_to_all_except(self, client_not_receiving, msg):
         client_websockets = [client.ws for client in self.clients if client != client_not_receiving]
-        print("Sending to all except: ", client_not_receiving)
         for ws in client_websockets:
             asyncio.create_task(self._send(ws, msg))
 
