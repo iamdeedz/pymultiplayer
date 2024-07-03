@@ -18,14 +18,24 @@ class TCPMultiplayerServer:
 
     def broadcast(self, msg):
         client_websockets = [client.ws for client in self.clients]
-        websockets.broadcast(client_websockets, msg)
+        print("Broadcasting to: ", client_websockets)
+        for ws in client_websockets:
+            asyncio.create_task(self._send(ws, msg))
 
-    def send_to_all_except(self, client, msg):
-        client_websockets = [client.ws for client in self.clients if client != client]
-        websockets.broadcast(client_websockets, msg)
+    def send_to_all_except(self, client_not_receiving, msg):
+        client_websockets = [client.ws for client in self.clients if client != client_not_receiving]
+        print("Sending to all except: ", client_not_receiving)
+        for ws in client_websockets:
+            asyncio.create_task(self._send(ws, msg))
 
-    def send_to(self, client, msg):
-        client.ws.send(msg)
+    async def send_to(self, client, msg):
+        await client.ws.send(msg)
+
+    async def _send(self, ws, msg):
+        try:
+            await ws.send(msg)
+        except websockets.ConnectionClosed:
+            self.clients.remove([client for client in self.clients if client.ws == ws])
 
     def client_joined_func(self, client):
         pass
@@ -57,12 +67,12 @@ class TCPMultiplayerServer:
             msg = {"type": "client_joined", "content": new_client.id}
             self.send_to_all_except(new_client, dumps(msg))
 
-            self.client_joined_func(new_client)
+            await self.client_joined_func(new_client)
 
             while True:
                 async for msg_json in websocket:
                     msg = loads(msg_json)
-                    self.msg_handler(msg, new_client)
+                    await self.msg_handler(msg, new_client)
 
         finally:
             self.clients.remove(new_client)

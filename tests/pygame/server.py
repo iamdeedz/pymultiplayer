@@ -1,24 +1,34 @@
 from pymultiplayer import TCPMultiplayerServer
+from player import Player
 from json import dumps
 
-
-def client_joined(client):
-    print(f"Client with id {client.id} connected")
-    msg_to_send = {"type": "client_joined", "content": client.id}
-    server.broadcast(dumps(msg_to_send))
-
-
-def client_left(client):
-    print(f"Client with id {client.id} disconnected")
-    msg_to_send = {"type": "client_left", "content": client.id}
-    server.broadcast(dumps(msg_to_send))
+players = list()
+id_to_player = dict()
 
 
 async def msg_handler(msg, client):
-    if msg["type"] == "update":
-        print(f"Client with id {client.id} sent an update")
-        print(msg["content"])
-        server.send_to_all_except(client, dumps(msg))
+    print(f"Client with id {client.id}:", msg["content"])
+    server.broadcast(dumps(msg))
+
+
+async def client_joined(client):
+    print(f"Client with id {client.id} joined.")
+    msg = {"type": "client_joined", "content": client.id}
+    server.send_to_all_except(client, dumps(msg))
+    msg = {"type": "sync", "content": players}
+    await server.send_to(client, dumps(msg))
+    player = Player(client.id)
+    players.append([player.id, player.x, player.y])
+    id_to_player[client.id] = player
+
+
+async def client_left(client):
+    print(f"Client with id {client.id} left.")
+    msg = {"type": "client_left", "content": client.id}
+    server.broadcast(dumps(msg))
+    print(id_to_player)
+    print(id_to_player[client.id])
+    players.remove(id_to_player[client.id])
 
 
 if __name__ == "__main__":
