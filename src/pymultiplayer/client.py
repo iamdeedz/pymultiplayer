@@ -43,8 +43,8 @@ class MultiplayerClient:
     def run(self, proxy):
         asyncio.run(self._run(proxy))
 
-    def disconnect(self):
-        self.ws.close()
+    async def disconnect(self):
+        await self.ws.close()
 
     async def send(self, msg):
         await asyncio.ensure_future(self.ws.send(msg))

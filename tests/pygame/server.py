@@ -15,9 +15,11 @@ async def msg_handler(msg, client):
 
 async def client_joined(client):
     print(f"Client with id {client.id} joined.")
+
     # Tell all existing clients the new client's id
     msg = {"type": "client_joined", "content": client.id}
     server.send_to_all_except(client, dumps(msg))
+
     # Bring the new client up to speed with all the other clients
     msg = {"type": "sync", "content": players}
     print(f"Players: {players}")

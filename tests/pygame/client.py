@@ -46,7 +46,7 @@ async def proxy(websocket):
         for event in p.event.get():
             if event.type == p.QUIT:
                 running = False
-                client.disconnect()
+                await client.disconnect()
 
             elif event.type == p.KEYDOWN:
                 if event.key == p.K_UP:
