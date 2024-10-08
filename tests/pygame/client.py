@@ -1,3 +1,5 @@
+import asyncio
+
 from pymultiplayer import MultiplayerClient
 from player import Player
 from json import dumps, loads
@@ -38,8 +40,14 @@ async def msg_handler(msg):
                 player.y = msg["content"]["y"]
 
 
-async def proxy(websocket):
+async def game():
     global self, running
+
+    while True:
+        # Connecting to server
+        if client.id:
+            break
+
     self = Player(client.id + 1)
 
     while running:
@@ -67,11 +75,11 @@ async def proxy(websocket):
 
         p.draw.rect(screen, self.colour, (self.x, self.y, self.width, self.height))
         for player in other_players:
-            print(f"ID: {player.id}, Colour: {player.colour}, X: {player.x}, Y: {player.y}, Width: {player.width}, Height: {player.height}")
             p.draw.rect(screen, player.colour, (player.x, player.y, player.width, player.height))
 
         clock.tick(60)
         p.display.update()
+
 
 if __name__ == "__main__":
     p.init()
@@ -80,4 +88,6 @@ if __name__ == "__main__":
     clock = p.time.Clock()
 
     client = MultiplayerClient(msg_handler)
-    client.run(proxy)
+    client.start()
+
+    asyncio.run(game())

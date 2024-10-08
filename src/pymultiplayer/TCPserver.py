@@ -16,24 +16,21 @@ class TCPMultiplayerServer:
         self.initial_server = InitialServer(self.ip, self.port, auth_func)
         Thread(target=self.initial_server.start).start()
 
-    def broadcast(self, msg):
-        client_websockets = [client.ws for client in self.clients]
-        for ws in client_websockets:
-            asyncio.create_task(self._send(ws, msg))
+    async def broadcast(self, msg):
+        for client in self.clients:
+            await client.ws.send(msg)
 
-    def send_to_all_except(self, client_not_receiving, msg):
-        client_websockets = [client.ws for client in self.clients if client != client_not_receiving]
-        for ws in client_websockets:
-            asyncio.create_task(self._send(ws, msg))
+    async def send_to_all_except(self, client_not_receiving, msg):
+        clients = [client for client in self.clients if client != client_not_receiving]
+        for client in clients:
+            await client.ws.send(msg)
 
-    async def send_to(self, client, msg):
+    async def send(self, client, msg):
         await client.ws.send(msg)
-
-    async def _send(self, ws, msg):
-        try:
-            await ws.send(msg)
-        except websockets.ConnectionClosed:
-            self.clients.remove([client for client in self.clients if client.ws == ws])
+        #try:
+        #   await client.ws.send(msg)
+        #except websockets.ConnectionClosed:
+        #   self.clients.remove(client)
 
     def client_joined_func(self, client):
         pass
@@ -63,7 +60,7 @@ class TCPMultiplayerServer:
             await websocket.send(dumps({"type": "id", "content": new_client.id}))
 
             msg = {"type": "client_joined", "content": new_client.id}
-            self.send_to_all_except(new_client, dumps(msg))
+            await self.send_to_all_except(new_client, dumps(msg))
 
             await self.client_joined_func(new_client)
 
@@ -76,7 +73,7 @@ class TCPMultiplayerServer:
             self.clients.remove(new_client)
             await self.client_left_func(new_client)
             msg = {"type": "client_left", "content": new_client.id}
-            self.broadcast(dumps(msg))
+            await self.broadcast(dumps(msg))
             await websocket.close()
 
     def run(self):

@@ -14,7 +14,7 @@ class MultiplayerClient:
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
-    async def _run(self, proxy):
+    async def websocket_handler(self):
         try:
             async with websockets.connect(f"ws://{self.ip}:{self.port}") as websocket:
                 if self._auth_handler:
@@ -32,29 +32,24 @@ class MultiplayerClient:
             async with websockets.connect(uri) as websocket:
                 self.ws = websocket
                 self.id = loads(await websocket.recv())["content"]
-                t = Thread(target=self.start_websocket_thread)
-                t.start()
-                self.event = Event()
-                await proxy(websocket)
+                async for msg in self.ws:
+                    await self._msg_handler(msg)
+
+                await self.ws.close()
+                quit()
 
         except OSError:
             raise ServerUnreachableError(self.ip, self.port)
 
-    def run(self, proxy):
-        asyncio.run(self._run(proxy))
+    def start(self):
+        t = Thread(target=self.start_websocket_thread)
+        t.start()
 
     async def disconnect(self):
         await self.ws.close()
 
     async def send(self, msg):
         await asyncio.ensure_future(self.ws.send(msg))
-
-    async def websocket_handler(self):
-        async for msg in self.ws:
-            await self._msg_handler(msg)
-
-        await self.ws.close()
-        quit()
 
     def start_websocket_thread(self):
         loop = asyncio.new_event_loop()
