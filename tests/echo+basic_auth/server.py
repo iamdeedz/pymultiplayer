@@ -6,7 +6,7 @@ import websockets
 async def msg_handler(msg, client):
     print(f"Client with id {client.id}:", msg["content"])
     print("Sending back:", msg["content"])
-    await client.ws.send(dumps(msg))
+    await server.send_to(client, dumps(msg))
 
 
 async def auth_func(websocket):
