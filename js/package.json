@@ -1,14 +1,11 @@
 {
   "name": "pymultiplayer-server",
   "version": "0.1.0",
-  "description": "Javascript script to host a server for pymultiplayer clients",
+  "description": "Javascript class for hosting a server for pymultiplayer clients",
   "main": "index.js",
-  "scripts": {
-    "test": "console.log(\"pymultiplayer\")"
-  },
   "repository": {
     "type": "git",
-    "url": "iamdeedz/pymultiplayer/js"
+    "url": "https://github.com/iamdeedz/pymultiplayer/tree/js-library/js"
   },
   "keywords": [
     "python",
