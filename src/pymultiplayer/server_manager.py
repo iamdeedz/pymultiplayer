@@ -40,7 +40,3 @@ class ServerManager:
         asyncio.run(self._run())
 
 # { "type": "get/create", -if create then- "" }
-
-
-server_manager = ServerManager("127.0.0.1", 1300, 2)
-server_manager.run()
