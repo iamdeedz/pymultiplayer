@@ -5,23 +5,14 @@ from json import dumps, loads
 import websockets, asyncio
 
 
-class Server:
-    def __init__(self, port, name):
-        self.port = port
-        self.name = name
-
-    def __repr__(self):
-        return f"{self.name} @ {self.port}"
-
-
 class ServerManager:
     def __init__(self, ip, port, max_servers):
         self.ip = ip
         self.port = port
         self.max_servers = max_servers
         self.servers = list()
-        self.servers.append(Server(1301, "test 1"))
-        self.servers.append(Server(1303, "test 2"))
+        self.servers.append(1301)
+        self.servers.append(1303)
 
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
