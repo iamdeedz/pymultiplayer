@@ -18,19 +18,18 @@ class TCPMultiplayerServer:
 
     async def broadcast(self, msg):
         for client in self.clients:
-            await client.ws.send(msg)
+            await self.send(client, msg)
 
     async def send_to_all_except(self, client_not_receiving, msg):
         clients = [client for client in self.clients if client != client_not_receiving]
         for client in clients:
-            await client.ws.send(msg)
+            await self.send(client, msg)
 
     async def send(self, client, msg):
-        await client.ws.send(msg)
-        #try:
-        #   await client.ws.send(msg)
-        #except websockets.ConnectionClosed:
-        #   self.clients.remove(client)
+        try:
+           await client.ws.send(msg)
+        except websockets.ConnectionClosed:
+           self.clients.remove(client)
 
     def client_joined_func(self, client):
         pass
