@@ -16,7 +16,7 @@ class ServerManager:
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
         if msg["type"] == "get":
-            return_msg = dumps({"type": "get", "servers": self.servers})
+            return_msg = dumps({"type": "get", "content": self.servers})
             await websocket.send(return_msg)
 
         elif msg["type"] == "create":
@@ -27,15 +27,20 @@ class ServerManager:
                     t = Thread(target=self.init_func, args=(self.ip, new_server_port, msg["parameters"],))
                     t.start()
                     self.servers.append()
-                    return_msg = dumps({"type": "create", "status": "thread_started"})
+                    return_msg = dumps({"type": "create", "status": "success", "content": "thread_started"})
                     await websocket.send(return_msg)
+                    await websocket.close()
 
                 except KeyError:
+                    return_msg = dumps({"type": "create", "status": "error", "content": "no_parameters_given"})
+                    await websocket.send(return_msg)
+                    await websocket.close()
                     raise NoParametersGiven()
 
             else:
-                return_msg = dumps({"type": "create", "status": "max_server_limit_reached"})
+                return_msg = dumps({"type": "create", "status": "error", "content": "max_server_limit_reached"})
                 await websocket.send(return_msg)
+                await websocket.close()
 
     async def _run(self):
         try:
