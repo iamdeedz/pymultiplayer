@@ -1,8 +1,7 @@
-import asyncio
-
-from pymultiplayer import MultiplayerClient
+from pymultiplayer import MultiplayerClient, get_servers
 from player import Player
 from json import dumps, loads
+import asyncio
 import pygame as p
 
 self = None
@@ -82,12 +81,16 @@ async def game():
 
 
 if __name__ == "__main__":
+    get_servers_return_msg = get_servers("127.0.0.1", 1300)
+    print(get_servers_return_msg["content"])
+    port = int(input("Which port would you like to connect to? "))
+
     p.init()
     screen = p.display.set_mode((500, 500))
     p.display.set_caption("Client")
     clock = p.time.Clock()
 
-    client = MultiplayerClient(msg_handler)
+    client = MultiplayerClient(msg_handler, port=port)
     client.start()
 
     asyncio.run(game())
