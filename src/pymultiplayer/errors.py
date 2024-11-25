@@ -26,3 +26,9 @@ class ServerError(Exception):
     def __init__(self, msg):
         self.message = f"The server encountered an error and had to close the connection. It sent this error: {msg}"
         super().__init__(self.message)
+
+
+class NoParametersGiven(Exception):
+    def __init__(self):
+        self.message = "No parameters were given in the create server request."
+        super().__init__(self.message)
