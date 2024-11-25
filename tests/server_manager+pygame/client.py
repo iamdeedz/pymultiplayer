@@ -81,7 +81,7 @@ async def game():
 
 
 if __name__ == "__main__":
-    get_servers_return_msg = get_servers("127.0.0.1", 1300)
+    get_servers_return_msg = asyncio.run(get_servers("127.0.0.1", 1300))
     print(get_servers_return_msg["content"])
     port = int(input("Which port would you like to connect to? "))
 
