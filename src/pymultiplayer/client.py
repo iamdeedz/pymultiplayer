@@ -10,7 +10,6 @@ class MultiplayerClient:
         self.port = port
         self.ws = None
         self.id = None
-        self.event = None
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
