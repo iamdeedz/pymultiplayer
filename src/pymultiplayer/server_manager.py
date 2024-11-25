@@ -1,5 +1,4 @@
 from threading import Thread
-from .TCPserver import TCPMultiplayerServer
 from .errors import PortInUseError
 from json import dumps, loads
 import websockets, asyncio
@@ -24,7 +23,8 @@ class ServerManager:
 
         elif msg["type"] == "create":
             if len(self.servers)+1 <= self.max_servers:
-                self.init_func(msg["parameters"])
+                t = Thread(target=self.init_func, args=msg["parameters"])
+                t.start()
 
     async def _run(self):
         try:
