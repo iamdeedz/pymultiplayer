@@ -25,6 +25,8 @@ class ServerManager:
             if len(self.servers)+1 <= self.max_servers:
                 t = Thread(target=self.init_func, args=msg["parameters"])
                 t.start()
+                return_msg = dumps({"type": "create", "status": "thread_started"})
+                await websocket.send(return_msg)
 
     async def _run(self):
         try:

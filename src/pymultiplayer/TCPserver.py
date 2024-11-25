@@ -56,7 +56,7 @@ class TCPMultiplayerServer:
             await websocket.send(dumps({"type": "error", "content": "Server is full"}))
             await websocket.close()
             return
-        
+
         new_client = _Client(websocket, self.last_id + 1)
         self.last_id += 1
 
