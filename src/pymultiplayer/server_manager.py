@@ -1,4 +1,4 @@
-from threading import Thread
+from multiprocessing import Process
 from .errors import PortInUseError, NoParametersGiven
 from json import dumps, loads
 import websockets, asyncio
@@ -24,8 +24,8 @@ class ServerManager:
 
                 try:
                     new_server_port = self.port+1 + (len(self.servers)*2)
-                    t = Thread(target=self.init_func, args=(self.ip, new_server_port, msg["parameters"],))
-                    t.start()
+                    process = Process(target=self.init_func, args=(self.ip, new_server_port, msg["parameters"],))
+                    process.start()
                     self.servers.append(new_server_port)
                     return_msg = dumps({"type": "create", "status": "success", "content": "thread_started"})
                     await websocket.send(return_msg)
