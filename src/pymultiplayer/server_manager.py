@@ -9,7 +9,7 @@ class ServerManager:
         self.ip = ip
         self.port = port
         self.max_servers = max_servers
-        self.init_func = init_func # Function ran to initialise a new server
+        self.init_func = init_func  # Function ran to initialise a new server
 
         self.servers = list()
         self.servers.append(1301)

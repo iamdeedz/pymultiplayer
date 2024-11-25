@@ -7,12 +7,13 @@ from json import dumps, loads
 
 
 class TCPMultiplayerServer:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
         self.clients = set()
         self.last_id = 0
+        self.max_clients = max_clients
         self.initial_server = InitialServer(self.ip, self.port, auth_func)
         Thread(target=self.initial_server.start).start()
 
@@ -51,6 +52,11 @@ class TCPMultiplayerServer:
             raise PortInUseError(self.port)
 
     async def proxy(self, websocket):
+        if len(self.clients)+1 > self.max_clients:
+            await websocket.send(dumps({"type": "error", "content": "Server is full"}))
+            await websocket.close()
+            return
+        
         new_client = _Client(websocket, self.last_id + 1)
         self.last_id += 1
 
