@@ -27,6 +27,9 @@ class ServerManager:
                 t.start()
                 return_msg = dumps({"type": "create", "status": "thread_started"})
                 await websocket.send(return_msg)
+            else:
+                return_msg = dumps({"type": "create", "status": "max_server_limit_reached"})
+                await websocket.send(return_msg)
 
     async def _run(self):
         try:
