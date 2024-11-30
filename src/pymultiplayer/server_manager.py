@@ -16,7 +16,7 @@ class ServerManager:
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
         if msg["type"] == "get":
-            return_msg = dumps({"type": "get", "content": self.servers})
+            return_msg = dumps({"type": "get", "content": [server for server in self.servers]})
             await websocket.send(return_msg)
 
         elif msg["type"] == "create":
@@ -26,7 +26,7 @@ class ServerManager:
                     new_server_port = self.port+1 + (len(self.servers)*2)
                     process = Process(target=self.init_func, args=(self.ip, new_server_port, msg["parameters"],))
                     process.start()
-                    self.servers.append(new_server_port)
+                    self.servers.append({"port": new_server_port, "parameters": msg["parameters"]})
                     return_msg = dumps({"type": "create", "status": "success", "content": "thread_started"})
                     await websocket.send(return_msg)
                     await websocket.close()
