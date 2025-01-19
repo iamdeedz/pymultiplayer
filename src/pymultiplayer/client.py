@@ -10,6 +10,7 @@ class MultiplayerClient:
         self.port = port
         self.ws = None
         self.id = None
+        self.ws_thread = None
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
@@ -41,10 +42,11 @@ class MultiplayerClient:
             raise ServerUnreachableError(self.ip, self.port)
 
     def start(self):
-        t = Thread(target=self.start_websocket_thread)
-        t.start()
+        self.ws_thread = Thread(target=self.start_websocket_thread)
+        self.ws_thread.start()
 
     async def disconnect(self):
+        await self.ws_thread.join()
         await self.ws.close()
 
     async def send(self, msg):
