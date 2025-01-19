@@ -11,7 +11,7 @@ class TCPMultiplayerServer:
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
-        self.clients = set()
+        self.clients = []
         self.last_id = 0
         self.max_clients = max_clients
         self.initial_server = InitialServer(self.ip, self.port, auth_func)
@@ -61,7 +61,7 @@ class TCPMultiplayerServer:
         self.last_id += 1
 
         try:
-            self.clients.add(new_client)
+            self.clients.append(new_client)
             await websocket.send(dumps({"type": "id", "content": new_client.id}))
 
             msg = {"type": "client_joined", "content": new_client.id}
