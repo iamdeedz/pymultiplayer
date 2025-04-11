@@ -60,3 +60,9 @@ async def get_servers(ip, port):
         await websocket.close()
         return return_msg
 
+
+async def create_server(ip, port, parameters: dict):
+    async with websockets.connect(f"ws://{ip}:{port}") as websocket:
+        await websocket.send(dumps({"type": "create", "parameters": parameters}))
+        reply = loads(await websocket.recv())
+        await websocket.close()
