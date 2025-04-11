@@ -14,7 +14,7 @@ async def auth_func(websocket):
     # sent by the client. If the server responds with "success", the client is authenticated. Otherwise, the client
     # is not authenticated and the connection is closed.
 
-    # You do not need to use an external server to authenticate clients. You can use a database for example. This is
+    # You do not need to use an external server to authenticate clients. You could use a database or any other method you want to. This is
     # just an example.
 
     print("Authenticating...")
