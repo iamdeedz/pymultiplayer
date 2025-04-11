@@ -66,3 +66,4 @@ async def create_server(ip, port, parameters: dict):
         await websocket.send(dumps({"type": "create", "parameters": parameters}))
         reply = loads(await websocket.recv())
         await websocket.close()
+        return reply
