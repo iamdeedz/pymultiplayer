@@ -5,7 +5,7 @@ A library for adding multiplayer functionality to python games.
 This is a work in progress. Don't expect all features to work.
 I don't know what version of python is needed for this package to work.
 
-This is mainly just a passion project/project to help future projects (in fact I'm using it right now in [Elemental Defense](https://www.github.com/iamdeedz/elemental-defense/)) but it would be nice if it had some use.
+This is mainly just a passion project and a project to help future projects (in fact I'm using it right now in [Elemental Defense](https://www.github.com/iamdeedz/elemental-defense/)) but it would be nice if it had some use.
 
 ---
 ## Usage
@@ -55,7 +55,7 @@ class TCPMultiplayerServer:
 - `port` - The port the server will run on. Default is 1300.
 - `auth_func` - If you want to use authentication, you can pass a function here. If an auth_func is given, it will be run every time a client connects. Takes in the websocket connection. Take a look at [this](tests/echo+basic_auth) example. The auth code is in server.py and authenticator.py.
 
-#### Usage
+### Example
 Full examples of these functions will be uploaded to [iamdeedz.github.io](https://iamdeedz.github.io) in due course but for now, here's a basic example.
 
 Let's start with the server.
