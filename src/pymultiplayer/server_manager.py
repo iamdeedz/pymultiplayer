@@ -27,7 +27,7 @@ class ServerManager:
                     process = Process(target=self.init_func, args=(self.ip, new_server_port, msg["parameters"],))
                     process.start()
                     self.servers.append({"port": new_server_port, "parameters": msg["parameters"]})
-                    return_msg = dumps({"type": "create", "status": "success", "content": "thread_started"})
+                    return_msg = dumps({"type": "create", "status": "success", "content": "thread_started", "port": new_server_port})
                     await websocket.send(return_msg)
                     await websocket.close()
 
