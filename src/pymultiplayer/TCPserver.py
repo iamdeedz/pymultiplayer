@@ -52,6 +52,12 @@ class TCPMultiplayerServer:
             raise PortInUseError(self.port)
 
     async def proxy(self, websocket):
+        msg = loads(await websocket.recv())
+        if msg["type"] == "get_player_count":
+            await websocket.send(dumps({"type": "get_player_count", "content": len(self.clients)}))
+            await websocket.close()
+            return
+
         if len(self.clients)+1 > self.max_clients:
             await websocket.send(dumps({"type": "error", "content": "Server is full"}))
             await websocket.close()

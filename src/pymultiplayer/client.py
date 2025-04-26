@@ -1,6 +1,6 @@
 import websockets, asyncio
 from .errors import ServerError, ServerClosedError, ServerUnreachableError
-from json import loads
+from json import loads, dumps
 from threading import Thread, Event
 
 
@@ -31,11 +31,17 @@ class MultiplayerClient:
 
             async with websockets.connect(uri) as websocket:
                 self.ws = websocket
+
+                # This message tells the server to continue processing this client as if they want to join (which they do)
+                # instead of returning the amount of players connected to the server
+                await self.ws.send(dumps({"type": ""}))
+
                 self.id = loads(await websocket.recv())["content"]
+
                 async for msg in self.ws:
                     await self._msg_handler(msg)
 
-                await self.ws.close()
+                await self.disconnect()
                 quit()
 
         except OSError:

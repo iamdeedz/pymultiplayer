@@ -51,19 +51,3 @@ class ServerManager:
 
     def run(self):
         asyncio.run(self._run())
-
-
-async def get_servers(ip, port):
-    async with websockets.connect(f"ws://{ip}:{port}") as websocket:
-        await websocket.send(dumps({"type": "get"}))
-        return_msg = loads(await websocket.recv())
-        await websocket.close()
-        return return_msg
-
-
-async def create_server(ip, port, parameters: dict):
-    async with websockets.connect(f"ws://{ip}:{port}") as websocket:
-        await websocket.send(dumps({"type": "create", "parameters": parameters}))
-        reply = loads(await websocket.recv())
-        await websocket.close()
-        return reply
