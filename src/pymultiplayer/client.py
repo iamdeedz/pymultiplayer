@@ -52,7 +52,7 @@ class MultiplayerClient:
         self.ws_thread.start()
 
     async def disconnect(self):
-        await self.ws_thread.join()
+        self.ws_thread.join()
         await self.ws.close()
 
     async def send(self, msg):
