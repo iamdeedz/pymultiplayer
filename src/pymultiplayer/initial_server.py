@@ -1,7 +1,7 @@
 import websockets, asyncio
-from threading import Thread
 from .errors import PortInUseError, AuthServerOffline
 from json import dumps
+from .health_check import health_check
 
 
 class InitialServer:
@@ -12,7 +12,7 @@ class InitialServer:
 
     async def _start(self):
         try:
-            async with websockets.serve(self.new_client, self.ip, self.port):
+            async with websockets.serve(self.new_client, self.ip, self.port, process_request=health_check):
                 await asyncio.Future()
         except OSError:
             raise PortInUseError(self.port)
