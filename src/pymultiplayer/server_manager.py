@@ -2,6 +2,7 @@ from multiprocessing import Process
 from .errors import PortInUseError, NoParametersGiven
 from json import dumps, loads
 import websockets, asyncio
+from .health_check import health_check
 
 
 class ServerManager:
@@ -44,8 +45,9 @@ class ServerManager:
 
     async def _run(self):
         try:
-            async with websockets.serve(self.proxy, self.ip, self.port):
+            async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
                 await asyncio.Future()
+
         except OSError:
             raise PortInUseError(self.port)
 

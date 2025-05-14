@@ -2,6 +2,7 @@ import websockets, asyncio
 from ._ws_client import _Client
 from .initial_server import InitialServer
 from .errors import PortInUseError
+from .health_check import health_check
 from threading import Thread
 from json import dumps, loads
 
@@ -46,7 +47,7 @@ class TCPMultiplayerServer:
 
     async def _run(self):
         try:
-            async with websockets.serve(self.proxy, self.ip, self.port + 1):
+            async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
                 await asyncio.Future()
         except OSError:
             raise PortInUseError(self.port)
