@@ -5,9 +5,10 @@ from .health_check import health_check
 
 
 class InitialServer:
-    def __init__(self, ip="127.0.0.1", port=1300, auth_func=None):
+    def __init__(self, ip="127.0.0.1", port=1300, auth_func=None, ws_or_wss: str = "ws"):
         self.ip = ip
         self.port = port
+        self.ws_or_wss = ws_or_wss
         self._auth_func = auth_func
 
     async def _start(self):
@@ -27,7 +28,7 @@ class InitialServer:
                 await websocket.close()
                 raise AuthServerOffline()
 
-        msg = {"type": "uri", "content": f"ws://{self.ip}:{self.port + 1}"}
+        msg = {"type": "uri", "content": f"{self.ws_or_wss}://{self.ip}:{self.port + 1}"}
         await websocket.send(dumps(msg))
         await websocket.close()
 
