@@ -5,24 +5,25 @@ from threading import Thread, Event
 
 
 class MultiplayerClient:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_handler=None):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_handler=None, ws_or_wss: str = "ws"):
         self.ip = ip
         self.port = port
         self.ws = None
         self.id = None
         self.ws_thread = None
+        self.ws_or_wss = ws_or_wss
         self._msg_handler = msg_handler
         self._auth_handler = auth_handler
 
     async def websocket_handler(self):
         try:
-            async with websockets.connect(f"ws://{self.ip}:{self.port}") as websocket:
+            async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.port}") as websocket:
                 if self._auth_handler:
                     await self._auth_handler(websocket)
 
                 msg = await websocket.recv()
                 uri = loads(msg)["content"]
-                if not uri.startswith("ws://"):
+                if not uri.startswith(f"{self.ws_or_wss}://"):
                     print("Invalid URI")
                     await websocket.close()
                     quit()
