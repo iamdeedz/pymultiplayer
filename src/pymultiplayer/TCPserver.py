@@ -47,7 +47,7 @@ class TCPMultiplayerServer:
 
     async def _run(self):
         try:
-            async with websockets.serve(self.proxy, self.ip, self.port + 1):
+            async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
                 await asyncio.Future()
         except OSError:
             raise PortInUseError(self.port)

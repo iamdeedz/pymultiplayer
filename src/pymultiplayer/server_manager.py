@@ -45,7 +45,7 @@ class ServerManager:
 
     async def _run(self):
         try:
-            async with websockets.serve(self.proxy, self.ip, self.port):
+            async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
                 await asyncio.Future()
 
         except OSError:
