@@ -5,7 +5,7 @@ import websockets, asyncio
 from .health_check import health_check
 
 
-class ServerManager:
+class DynamicServerManager:
     def __init__(self, ip, port, max_servers, init_func):
         self.ip = ip
         self.port = port
