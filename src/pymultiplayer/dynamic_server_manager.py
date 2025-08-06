@@ -1,8 +1,8 @@
 from multiprocessing import Process
 from .errors import PortInUseError, NoParametersGiven
 from json import dumps, loads
-import websockets, asyncio
 from .health_check import health_check
+import websockets, asyncio
 
 
 class DynamicServerManager:

@@ -23,7 +23,7 @@ class InitialServer:
             try:
                 await self._auth_func(websocket)
             except OSError:
-                msg = {"type": "error", "content": "Server encountered an OSError during the authorization process."}
+                msg = {"type": "error", "content": "Server encountered an OSError during the authentication process."}
                 await websocket.send(dumps(msg))
                 await websocket.close()
                 raise AuthServerOffline()

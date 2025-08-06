@@ -1,7 +1,7 @@
 import websockets, asyncio
-from .errors import ServerError, ServerClosedError, ServerUnreachableError
+from .errors import ServerUnreachableError
 from json import loads, dumps
-from threading import Thread, Event
+from threading import Thread
 
 
 class MultiplayerClient:
@@ -18,6 +18,11 @@ class MultiplayerClient:
     async def websocket_handler(self):
         try:
             async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.port}") as websocket:
+
+                await websocket.send(dumps({})) # Send an empty message because the server will be expecting a message,
+                                                # and it will check if there is a uuid field in the message, if there
+                                                # isn't the request must be from a client, which we are.
+
                 if self._auth_handler:
                     await self._auth_handler(websocket)
 
