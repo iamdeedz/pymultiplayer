@@ -54,3 +54,14 @@ class StaticServerManager:
                 return
 
             await self.send_message_to_server(self.idle_servers[0])
+
+    async def _run(self):
+        try:
+            async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
+                await asyncio.Future()
+
+        except OSError:
+            raise PortInUseError(self.port)
+
+    def run(self):
+        asyncio.run(self._run())
