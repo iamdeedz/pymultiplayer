@@ -59,7 +59,7 @@ class StaticServerManager:
     async def _run(self):
         for port in self.idle_servers:
             # Start all the servers
-            process = Process(target=self.init_func, args=(self.ip, port,))
+            process = Process(target=self.init_func, args=(self.ip, port, self.uuid,))
             process.start()
 
         try:
