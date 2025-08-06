@@ -57,7 +57,13 @@ class StaticServerManager:
             await self.send_message_to_server(self.idle_servers[0])
 
     async def _run(self):
+        for port in self.idle_servers:
+            # Start all the servers
+            process = Process(target=self.init_func, args=(self.ip, port,))
+            process.start()
+
         try:
+            # Start the actual server manager
             async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
                 await asyncio.Future()
 
