@@ -7,7 +7,7 @@ import websockets, asyncio
 
 
 class StaticServerManager:
-    def __init__(self, ip, port, no_of_servers, init_func, ws_or_wss: str = "ws"):
+    def __init__(self, no_of_servers, init_func, ip="127.0.0.1", port=1300, ws_or_wss: str = "ws"):
         self.ip = ip
         self.port = port
         self.no_of_servers = no_of_servers

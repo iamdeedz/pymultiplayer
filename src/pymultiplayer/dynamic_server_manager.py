@@ -6,7 +6,7 @@ import websockets, asyncio
 
 
 class DynamicServerManager:
-    def __init__(self, ip, port, max_servers, init_func):
+    def __init__(self, max_servers, init_func,  ip="127.0.0.1", port=1300):
         self.ip = ip
         self.port = port
         self.max_servers = max_servers
