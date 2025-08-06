@@ -18,7 +18,7 @@ class TCPMultiplayerServer:
         self.max_clients = max_clients
 
         if static:
-            self.initial_server = InitialServerForSSM(self.ip, self.port, auth_func)
+            self.initial_server = InitialServerForSSM(sm_uuid, self.ip, self.port, auth_func)
         else:
             self.initial_server = InitialServer(self.ip, self.port, auth_func)
 

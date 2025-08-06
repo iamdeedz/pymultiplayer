@@ -7,13 +7,15 @@ import websockets, asyncio
 
 
 class StaticServerManager:
-    def __init__(self, ip, port, no_of_servers, init_func):
+    def __init__(self, ip, port, no_of_servers, init_func, ws_or_wss: str = "ws"):
         self.ip = ip
         self.port = port
         self.no_of_servers = no_of_servers
         self.init_func = init_func  # Function ran to initialise a new server
 
         self.uuid = uuid4()
+
+        self.ws_or_wss = ws_or_wss
 
         self.busy_servers = list()
         self.idle_servers = list()
@@ -35,6 +37,8 @@ class StaticServerManager:
 
     async def send_message_to_server(self, server_port):
         msg = dumps({"type": "test", "content": "test", "uuid": self.uuid})
+        async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{server_port}") as websocket:
+            await websocket.send(msg)
 
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
@@ -46,5 +50,7 @@ class StaticServerManager:
             if len(self.idle_servers) < 1:
                 return_msg = dumps({"type": "create", "status": "error", "content": "all_servers_busy"})
                 await websocket.send(return_msg)
+                await websocket.close()
+                return
 
-
+            await self.send_message_to_server(self.idle_servers[0])
