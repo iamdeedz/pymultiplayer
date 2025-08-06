@@ -13,7 +13,7 @@ class StaticServerManager:
         self.no_of_servers = no_of_servers
         self.init_func = init_func  # Function ran to initialise a new server
 
-        self.uuid = uuid4()
+        self.uuid = str(uuid4())
 
         self.ws_or_wss = ws_or_wss
 
