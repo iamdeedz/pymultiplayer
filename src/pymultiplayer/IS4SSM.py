@@ -36,6 +36,8 @@ class InitialServerForSSM:
             # Request is legitimately from server
             print(incoming_msg)
 
+            await websocket.close()
+
         else:
             # Request is from a client
             if self._auth_func:
