@@ -37,7 +37,6 @@ class StaticServerManager:
 
     async def send_message_to_server(self, server_port):
         msg = dumps({"type": "test", "content": "test", "uuid": self.uuid})
-        print(f"{self.ws_or_wss}://{self.ip}:{server_port}")
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{server_port}") as websocket:
             await websocket.send(msg)
 
