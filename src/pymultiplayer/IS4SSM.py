@@ -25,7 +25,7 @@ class InitialServerForSSM:
     async def new_client(self, websocket):
         incoming_msg = loads(await websocket.recv())
         if "uuid" in incoming_msg:
-            # Request is from server
+            # Request is supposedly from server
             if incoming_msg["uuid"] != self.sm_uuid:
                 # Request is not legitimate
                 msg = {"type": "error", "content": "UUID is invalid."}
