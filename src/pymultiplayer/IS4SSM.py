@@ -31,6 +31,7 @@ class InitialServerForSSM:
                 msg = {"type": "error", "content": "UUID is invalid."}
                 await websocket.send(dumps(msg))
                 await websocket.close()
+                return
 
             # Request is legitimately from server
             print(incoming_msg)
