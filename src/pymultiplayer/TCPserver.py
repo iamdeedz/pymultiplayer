@@ -56,6 +56,7 @@ class TCPMultiplayerServer:
 
     async def _disconnect_all_clients(self):
         for client in self.clients:
+            await self.send(client, dumps({"type": "goodbye"}))
             await client.ws.close()
 
     # Client Joining/Leaving Functions

@@ -40,7 +40,12 @@ class MultiplayerClient:
 
                 self.id = loads(await websocket.recv())["content"]
 
-                async for msg in self.ws:
+                async for msg_json in self.ws:
+                    msg = loads(msg_json)
+                    if msg["type"] == "goodbye":
+                        await self.ws.close()
+                        return
+                    
                     await self._msg_handler(msg)
 
                 await self.disconnect()
