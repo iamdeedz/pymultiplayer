@@ -1,7 +1,6 @@
 import websockets, asyncio
 from ._ws_client import _Client
 from .initial_server import InitialServer
-from.IS4SSM import InitialServerForSSM
 from .errors import PortInUseError
 from .health_check import health_check
 from threading import Thread
@@ -9,7 +8,7 @@ from json import dumps, loads
 
 
 class TCPMultiplayerServer:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, static=False, sm_uuid=None):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_uuid=None):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -17,11 +16,8 @@ class TCPMultiplayerServer:
         self.last_id = 0
         self.max_clients = max_clients
 
-        if static:
-            self.initial_server = InitialServerForSSM(sm_uuid, self.ip, self.port, auth_func)
-        else:
-            self.initial_server = InitialServer(self.ip, self.port, auth_func)
-
+        self.sm_uuid = sm_uuid
+        self.initial_server = InitialServer(self.ip, self.port, auth_func)
         Thread(target=self.initial_server.start).start()
 
     async def broadcast(self, msg):
@@ -64,6 +60,20 @@ class TCPMultiplayerServer:
             await websocket.send(dumps({"type": "get_player_count", "content": len(self.clients)}))
             await websocket.close()
             return
+
+        if "uuid" in msg:
+            # Request is supposedly from server
+            if msg["uuid"] != self.sm_uuid:
+                # Request is not legitimate
+                msg = {"type": "error", "content": "UUID is invalid."}
+                await websocket.send(dumps(msg))
+                await websocket.close()
+                return
+
+            # Request is legitimately from server
+            print(msg)
+
+            await websocket.close()
 
         if len(self.clients)+1 > self.max_clients:
             await websocket.send(dumps({"type": "error", "content": "Server is full"}))
