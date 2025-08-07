@@ -45,7 +45,7 @@ class MultiplayerClient:
                     if msg["type"] == "goodbye":
                         await self.ws.close()
                         return
-                    
+
                     await self._msg_handler(msg)
 
                 await self.disconnect()
