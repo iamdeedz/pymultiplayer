@@ -50,7 +50,7 @@ class TCPMultiplayerServer:
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
-        self.start_game_func(parameters)
+        await self.start_game_func(parameters)
 
     # Client Joining/Leaving Functions
     def client_joined_func(self, client):
