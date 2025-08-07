@@ -49,6 +49,7 @@ class TCPMultiplayerServer:
         msg = dumps({"type": "game_complete", "port": self.port})
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
             await websocket.send(msg)
+            return
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
