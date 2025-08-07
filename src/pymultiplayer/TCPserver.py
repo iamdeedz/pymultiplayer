@@ -51,7 +51,7 @@ class TCPMultiplayerServer:
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
-        await self.start_game_func(parameters)
+        await self.start_game_func(self, parameters)
 
     async def _disconnect_all_clients(self):
         for client in self.clients:
@@ -121,16 +121,16 @@ class TCPMultiplayerServer:
             msg = {"type": "client_joined", "content": new_client.id}
             await self.send_to_all_except(new_client, dumps(msg))
 
-            await self.client_joined_func(new_client)
+            await self.client_joined_func(self, new_client)
 
             while True:
                 async for msg_json in websocket:
                     msg = loads(msg_json)
-                    await self.msg_handler(msg, new_client)
+                    await self.msg_handler(self, msg, new_client)
 
         finally:
             self.clients.remove(new_client)
-            await self.client_left_func(new_client)
+            await self.client_left_func(self, new_client)
             msg = {"type": "client_left", "content": new_client.id}
             await self.broadcast(dumps(msg))
             await websocket.close()
