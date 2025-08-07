@@ -19,10 +19,6 @@ class MultiplayerClient:
         try:
             async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.port}") as websocket:
 
-                await websocket.send(dumps({})) # Send an empty message because the server will be expecting a message,
-                                                # and it will check if there is a uuid field in the message, if there
-                                                # isn't the request must be from a client, which we are.
-
                 if self._auth_handler:
                     await self._auth_handler(websocket)
 
@@ -39,7 +35,7 @@ class MultiplayerClient:
                 self.ws = websocket
 
                 # This message tells the server to continue processing this client as if they want to join (which they do)
-                # instead of returning the amount of players connected to the server
+                # instead of processing it as if it were the server manager
                 await self.ws.send(dumps({"type": ""}))
 
                 self.id = loads(await websocket.recv())["content"]
