@@ -49,7 +49,6 @@ class TCPMultiplayerServer:
         msg = dumps({"type": "game_complete", "port": self.port})
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
             await websocket.send(msg)
-            return
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
@@ -125,10 +124,13 @@ class TCPMultiplayerServer:
 
             await self.client_joined_func(self, new_client)
 
-            while True:
-                async for msg_json in websocket:
-                    msg = loads(msg_json)
-                    await self.msg_handler(self, msg, new_client)
+            try:
+                while True:
+                    async for msg_json in websocket:
+                        msg = loads(msg_json)
+                        await self.msg_handler(self, msg, new_client)
+            except websockets.ConnectionClosed:
+                pass
 
         finally:
             self.clients.remove(new_client)
