@@ -74,6 +74,7 @@ class TCPMultiplayerServer:
             print(msg)
 
             await websocket.close()
+            return
 
         if len(self.clients)+1 > self.max_clients:
             await websocket.send(dumps({"type": "error", "content": "Server is full"}))
