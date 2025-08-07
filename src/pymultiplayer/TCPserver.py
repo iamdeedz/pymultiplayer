@@ -90,7 +90,8 @@ class TCPMultiplayerServer:
                 return
 
             # Request is legitimately from server
-            await self._start_game_func(msg["parameters"])
+            if msg["type"] == "new_game_parameters":
+                await self._start_game_func(msg["content"])
 
             await websocket.close()
             return
