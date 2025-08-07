@@ -45,6 +45,7 @@ class TCPMultiplayerServer:
     async def game_finished(self):
         self.is_idle = True
         await self._disconnect_all_clients()
+        print("Game Complete, All Clients Disconnected, Server Is Idle")
         msg = dumps({"type": "game_complete", "port": self.port})
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
             await websocket.send(msg)
