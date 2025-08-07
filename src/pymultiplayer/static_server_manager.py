@@ -73,7 +73,7 @@ class StaticServerManager:
                 raise NoParametersGiven()
 
     def init_func(self, ip, port, sm_uuid, msg_handler, client_joined_func, client_left_func, start_game_func):
-        server = TCPMultiplayerServer(msg_handler, ip, port, sm_uuid=sm_uuid, start_game_func=start_game_func)
+        server = TCPMultiplayerServer(msg_handler, ip, port, sm_port=self.port, sm_uuid=sm_uuid, start_game_func=start_game_func)
         if client_joined_func:
             server.set_client_joined_func(client_joined_func)
         if client_left_func:
