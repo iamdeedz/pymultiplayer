@@ -124,13 +124,10 @@ class TCPMultiplayerServer:
 
             await self.client_joined_func(self, new_client)
 
-            try:
-                while True:
-                    async for msg_json in websocket:
-                        msg = loads(msg_json)
-                        await self.msg_handler(self, msg, new_client)
-            except websockets.ConnectionClosed:
-                pass
+            while True:
+                async for msg_json in websocket:
+                    msg = loads(msg_json)
+                    await self.msg_handler(self, msg, new_client)
 
         finally:
             self.clients.remove(new_client)
