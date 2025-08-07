@@ -8,7 +8,7 @@ from json import dumps, loads
 
 
 class TCPMultiplayerServer:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_uuid=None):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -16,10 +16,16 @@ class TCPMultiplayerServer:
         self.last_id = 0
         self.max_clients = max_clients
 
+        self.is_idle = True
+        self.sm_port = sm_port
         self.sm_uuid = sm_uuid
+        self.ws_or_wss = ws_or_wss
+        self.start_game_func = start_game_func
+
         self.initial_server = InitialServer(self.ip, self.port, auth_func)
         Thread(target=self.initial_server.start).start()
 
+    # Client Communication Functions
     async def broadcast(self, msg):
         for client in self.clients:
             await self.send(client, msg)
@@ -35,6 +41,18 @@ class TCPMultiplayerServer:
         except websockets.ConnectionClosed:
            self.clients.remove(client)
 
+    # State Management Functions For Use With Static Server Manager
+    async def game_finished(self):
+        self.is_idle = True
+        msg = dumps({"type": "game_complete", "port": self.port})
+        async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
+            await websocket.send(msg)
+
+    async def _start_game_func(self, parameters):
+        self.is_idle = False
+        self.start_game_func(parameters)
+
+    # Client Joining/Leaving Functions
     def client_joined_func(self, client):
         pass
 
@@ -47,6 +65,7 @@ class TCPMultiplayerServer:
     def set_client_left_func(self, func):
         self.client_left_func = func
 
+    # Server Basics (run/proxy)
     async def _run(self):
         try:
             async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
@@ -73,6 +92,11 @@ class TCPMultiplayerServer:
             # Request is legitimately from server
             print(msg)
 
+            await websocket.close()
+            return
+
+        if self.is_idle:
+            await websocket.send(dumps({"type": "error", "content": "Server is not active"}))
             await websocket.close()
             return
 

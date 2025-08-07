@@ -1,23 +1,23 @@
 from multiprocessing import Process
 from .errors import PortInUseError, NoParametersGiven
 from json import dumps, loads
+from .TCPserver import TCPMultiplayerServer
 from .health_check import health_check
 from uuid import uuid4
 import websockets, asyncio
 
 
 class StaticServerManager:
-    def __init__(self, no_of_servers, init_func, ip="127.0.0.1", port=1300, ws_or_wss: str = "ws"):
+    def __init__(self, no_of_servers, ip="127.0.0.1", port=1300, ws_or_wss: str = "ws"):
         self.ip = ip
         self.port = port
         self.no_of_servers = no_of_servers
-        self.init_func = init_func  # Function ran to initialise a new server
 
         self.uuid = str(uuid4())
 
         self.ws_or_wss = ws_or_wss
 
-        self.busy_servers = list()
+        self.active_servers = list()
         self.idle_servers = list()
 
         for i in range(self.no_of_servers):
@@ -26,24 +26,35 @@ class StaticServerManager:
         # all servers always on
         # need a list of idle servers
         # when server is requested, need to first check if there's any servers free
-        # then send a message to that server telling it to expect a client
+        # then send a message to that server telling it parameters for a new game
         # make sure the server is in the right list
         # send the port of the server to the client
+
+        # SSM -> Server
+        # {
+        # type; new_game_parameters,
+        # content: {level_id: -999, max_players: 4}
+        # uuid: sm_uuid
+        # }
+
+        # SSM moves server to active_servers list
 
         # need a way for the server manager to talk to the servers
         # could generate a uuid for the server manager on startup and pass that through to the servers as a parameter
         # then whenever the server manager tries to talk to the servers, it connects, send a message that has the server manager's uuid in it,
         # the server checks if the uuid is correct, then does what the server manager asked.
 
-    async def send_message_to_server(self, server_port):
-        msg = dumps({"type": "test", "content": "test", "uuid": self.uuid})
+    async def start_game_server(self, server_port, parameters):
+        msg = dumps({"type": "new_game_parameters", "content": parameters, "uuid": self.uuid})
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{server_port+1}") as websocket:
             await websocket.send(msg)
+        self.idle_servers.remove(server_port)
+        self.active_servers.append(server_port)
 
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
         if msg["type"] == "get":
-            return_msg = dumps({"type": "get", "content": [server for server in self.busy_servers]})
+            return_msg = dumps({"type": "get", "content": [server for server in self.active_servers]})
             await websocket.send(return_msg)
 
         elif msg["type"] == "create":
@@ -53,12 +64,27 @@ class StaticServerManager:
                 await websocket.close()
                 return
 
-            await self.send_message_to_server(self.idle_servers[0])
+            try:
+                await self.start_game_server(self.idle_servers[0], msg["parameters"])
+            except KeyError:
+                return_msg = dumps({"type": "create", "status": "error", "content": "no_parameters_given"})
+                await websocket.send(return_msg)
+                await websocket.close()
+                raise NoParametersGiven()
 
-    async def _run(self):
+    def init_func(self, ip, port, sm_uuid, msg_handler, client_joined_func, client_left_func, start_game_func):
+        server = TCPMultiplayerServer(msg_handler, ip, port, sm_uuid=sm_uuid, start_game_func=start_game_func)
+        if client_joined_func:
+            server.set_client_joined_func(client_joined_func)
+        if client_left_func:
+            server.set_client_left_func(client_left_func)
+        server.run()
+
+    async def _run(self, msg_handler, client_joined_func, client_left_func, start_game_func):
+
         for port in self.idle_servers:
             # Start all the servers
-            process = Process(target=self.init_func, args=(self.ip, port, self.uuid,))
+            process = Process(target=self.init_func, args=(self.ip, port, self.uuid, msg_handler, client_joined_func, client_left_func, start_game_func,))
             process.start()
 
         try:
@@ -69,5 +95,5 @@ class StaticServerManager:
         except OSError:
             raise PortInUseError(self.port)
 
-    def run(self):
-        asyncio.run(self._run())
+    def run(self, msg_handler, client_joined_func=None, client_left_func=None, start_game_func=None):
+        asyncio.run(self._run(msg_handler, client_joined_func, client_left_func, start_game_func))
