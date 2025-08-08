@@ -7,22 +7,36 @@ from threading import Thread
 from json import dumps, loads
 
 
-class TCPMultiplayerServer:
+class ServerOptions:
     def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None, _is_idle=False):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
-        self.clients = []
-        self.last_id = 0
         self.max_clients = max_clients
-
         self.is_idle = _is_idle
         self.sm_port = sm_port
         self.sm_uuid = sm_uuid
         self.ws_or_wss = ws_or_wss
         self.start_game_func = start_game_func
+        self.auth_func = auth_func
 
-        self.initial_server = InitialServer(self.ip, self.port, auth_func)
+
+class TCPMultiplayerServer:
+    def __init__(self, options: ServerOptions):
+        self.ip = options.ip
+        self.port = options.port
+        self.msg_handler = options.msg_handler
+        self.clients = []
+        self.last_id = 0
+        self.max_clients = options.max_clients
+
+        self.is_idle = options.is_idle
+        self.sm_port = options.sm_port
+        self.sm_uuid = options.sm_uuid
+        self.ws_or_wss = options.ws_or_wss
+        self.start_game_func = options.start_game_func
+
+        self.initial_server = InitialServer(self.ip, self.port, options.auth_func)
         Thread(target=self.initial_server.start).start()
 
     # Client Communication Functions
