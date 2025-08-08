@@ -73,8 +73,10 @@ class StaticServerManager:
                 raise NoParametersGiven()
 
         elif msg["type"] == "game_complete":
-            self.active_servers.remove(msg["port"])
-            self.idle_servers.append(msg["port"])
+            if msg["port"] in self.active_servers:
+                # First message to remove, server sends as many messages as it has clients so only care about the first one.
+                self.active_servers.remove(msg["port"])
+                self.idle_servers.append(msg["port"])
 
     def init_func(self, ip, port, sm_uuid, msg_handler, client_joined_func, client_left_func, start_game_func):
         server = TCPMultiplayerServer(msg_handler, ip, port, sm_port=self.port, sm_uuid=sm_uuid, start_game_func=start_game_func, _is_idle=True)
