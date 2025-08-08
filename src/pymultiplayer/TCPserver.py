@@ -8,7 +8,7 @@ from json import dumps, loads
 
 
 class TCPMultiplayerServer:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None, _is_idle=False):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -16,7 +16,7 @@ class TCPMultiplayerServer:
         self.last_id = 0
         self.max_clients = max_clients
 
-        self.is_idle = True
+        self.is_idle = _is_idle
         self.sm_port = sm_port
         self.sm_uuid = sm_uuid
         self.ws_or_wss = ws_or_wss
@@ -45,10 +45,6 @@ class TCPMultiplayerServer:
     async def game_finished(self):
         self.is_idle = True
         await self.broadcast(dumps({"type": "goodbye"}))
-        print("Game Complete, Server Is Idle")
-        msg = dumps({"type": "game_complete", "port": self.port})
-        async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
-            await websocket.send(msg)
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
@@ -120,10 +116,15 @@ class TCPMultiplayerServer:
 
             await self.client_joined_func(self, new_client)
 
-            while True:
+            while not self.is_idle:
                 async for msg_json in websocket:
                     msg = loads(msg_json)
                     await self.msg_handler(self, msg, new_client)
+
+            if self.sm_port:
+                msg = dumps({"type": "game_complete", "port": self.port})
+                async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
+                    await websocket.send(msg)
 
         finally:
             self.clients.remove(new_client)
