@@ -1,7 +1,7 @@
 from multiprocessing import Process
 from .errors import PortInUseError, NoParametersGiven
 from json import dumps, loads
-from .TCPserver import TCPMultiplayerServer
+from .TCPserver import TCPMultiplayerServer, ServerOptions
 from .health_check import health_check
 from uuid import uuid4
 import websockets, asyncio
@@ -78,19 +78,16 @@ class StaticServerManager:
                 self.active_servers.remove(msg["port"])
                 self.idle_servers.append(msg["port"])
 
-    def init_func(self, ip, port, sm_uuid, msg_handler, client_joined_func, client_left_func, start_game_func, auth_func, max_clients):
-        server = TCPMultiplayerServer(msg_handler, ip, port, sm_port=self.port, sm_uuid=sm_uuid, start_game_func=start_game_func, _is_idle=True, auth_func=auth_func, max_clients=max_clients)
-        if client_joined_func:
-            server.set_client_joined_func(client_joined_func)
-        if client_left_func:
-            server.set_client_left_func(client_left_func)
+    def init_func(self, server_options):
+        server = TCPMultiplayerServer(server_options)
         server.run()
 
-    async def _run(self, msg_handler, client_joined_func, client_left_func, start_game_func, auth_func, max_clients):
+    async def _run(self, server_options):
 
         for port in self.idle_servers:
             # Start all the servers
-            process = Process(target=self.init_func, args=(self.ip, port, self.uuid, msg_handler, client_joined_func, client_left_func, start_game_func, auth_func, max_clients,))
+            server_options.port = port
+            process = Process(target=self.init_func, args=(server_options,))
             process.start()
 
         try:
@@ -101,5 +98,5 @@ class StaticServerManager:
         except OSError:
             raise PortInUseError(self.port)
 
-    def run(self, msg_handler, client_joined_func=None, client_left_func=None, start_game_func=None, auth_func=None, max_clients=8):
-        asyncio.run(self._run(msg_handler, client_joined_func, client_left_func, start_game_func, auth_func, max_clients))
+    def run(self, server_options: ServerOptions):
+        asyncio.run(self._run(server_options))

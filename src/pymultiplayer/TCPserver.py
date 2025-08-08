@@ -7,8 +7,12 @@ from threading import Thread
 from json import dumps, loads
 
 
+async def blank_func(server, client):
+    pass
+
+
 class ServerOptions:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None, _is_idle=False):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, client_joined_func=None, client_left_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None, _is_idle=False):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -19,6 +23,9 @@ class ServerOptions:
         self.ws_or_wss = ws_or_wss
         self.start_game_func = start_game_func
         self.auth_func = auth_func
+
+        self.client_joined_func = client_joined_func if client_joined_func else blank_func
+        self.client_left_func = client_left_func if client_left_func else blank_func
 
 
 class TCPMultiplayerServer:
@@ -35,6 +42,9 @@ class TCPMultiplayerServer:
         self.sm_uuid = options.sm_uuid
         self.ws_or_wss = options.ws_or_wss
         self.start_game_func = options.start_game_func
+
+        self.client_joined_func = options.client_joined_func
+        self.client_left_func = options.client_left_func
 
         self.initial_server = InitialServer(self.ip, self.port, options.auth_func)
         Thread(target=self.initial_server.start).start()
@@ -64,19 +74,6 @@ class TCPMultiplayerServer:
     async def _start_game_func(self, parameters):
         self.is_idle = False
         await self.start_game_func(self, parameters)
-
-    # Client Joining/Leaving Functions
-    def client_joined_func(self, client):
-        pass
-
-    def client_left_func(self, client):
-        pass
-
-    def set_client_joined_func(self, func):
-        self.client_joined_func = func
-
-    def set_client_left_func(self, func):
-        self.client_left_func = func
 
     # Server Basics (run/proxy)
     async def _run(self):
