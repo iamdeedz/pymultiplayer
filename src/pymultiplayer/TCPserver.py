@@ -44,8 +44,8 @@ class TCPMultiplayerServer:
     # State Management Functions For Use With Static Server Manager
     async def game_finished(self):
         self.is_idle = True
-        await self._disconnect_all_clients()
-        print("Game Complete, All Clients Disconnected, Server Is Idle")
+        await self.broadcast(dumps({"type": "goodbye"}))
+        print("Game Complete, Server Is Idle")
         msg = dumps({"type": "game_complete", "port": self.port})
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{self.sm_port}") as websocket:
             await websocket.send(msg)
@@ -53,11 +53,6 @@ class TCPMultiplayerServer:
     async def _start_game_func(self, parameters):
         self.is_idle = False
         await self.start_game_func(self, parameters)
-
-    async def _disconnect_all_clients(self):
-        for client in self.clients:
-            await self.send(client, dumps({"type": "goodbye"}))
-            await client.ws.close()
 
     # Client Joining/Leaving Functions
     def client_joined_func(self, client):
