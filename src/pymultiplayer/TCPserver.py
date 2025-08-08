@@ -44,6 +44,7 @@ class TCPMultiplayerServer:
     # State Management Functions For Use With Static Server Manager
     async def game_finished(self):
         self.is_idle = True
+        self.last_id = 0
         await self.broadcast(dumps({"type": "goodbye"}))
 
     async def _start_game_func(self, parameters):
@@ -127,7 +128,8 @@ class TCPMultiplayerServer:
                     await websocket.send(msg)
 
         finally:
-            self.clients.remove(new_client)
+            if new_client in self.clients:
+                self.clients.remove(new_client)
             await self.client_left_func(self, new_client)
             msg = {"type": "client_left", "content": new_client.id}
             await self.broadcast(dumps(msg))
