@@ -84,7 +84,7 @@ async def test9():
     client.start()
 
 
-def msg_handler(client, msg):
+def msg_handler(server, msg, client):
     print(f"client {client.id} sent: {msg}")
 
 
