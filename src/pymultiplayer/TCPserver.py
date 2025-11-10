@@ -131,7 +131,7 @@ class TCPMultiplayerServer:
             while not self.is_idle:
                 async for msg_json in websocket:
                     msg = loads(msg_json)
-                    if msg["type"] == "game_complete":
+                    if msg["type"] == "game_complete" and self.sm_port:
                         await self.game_finished()
 
                     await self.msg_handler(self, msg, new_client)
