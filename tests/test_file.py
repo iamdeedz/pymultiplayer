@@ -2,7 +2,7 @@ import websockets
 from json import loads, dumps
 from asyncio import run
 from time import sleep
-from pymultiplayer import MultiplayerClient
+from pymultiplayer import MultiplayerClient, StaticServerManager, ServerOptions
 
 
 async def test1():
@@ -24,23 +24,35 @@ async def test3():
 
 
 async def test4():
+    """
+    Create server - no parameters
+    """
     async with websockets.connect("ws://127.0.0.1:1300") as websocket:
         await websocket.send(dumps({"type": "create"}))
 
 
 async def test5():
+    """
+    Create server - with parameters
+    """
     async with websockets.connect("ws://127.0.0.1:1300") as websocket:
         await websocket.send(dumps({"type": "create", "parameters": {"level_id": -999, "max_players": 2}}))
         print(loads(await websocket.recv()))
 
 
 async def test6():
+    """
+    Get servers
+    """
     async with websockets.connect("ws://127.0.0.1:1300") as websocket:
         await websocket.send(dumps({"type": "get"}))
         print(loads(await websocket.recv()))
 
 
 async def test7():
+    """
+    Connect to server number one, enter receive mode
+    """
     async with websockets.connect("ws://127.0.0.1:1302") as websocket:
         await websocket.send(dumps({"type": ""}))
         async for msg_json in websocket:
@@ -48,12 +60,15 @@ async def test7():
 
 
 async def test8():
+    """
+
+    """
     close = False
     client = None
     async def msg_handler(msg):
         print("Server sent: " + str(msg))
         if close:
-            await client.send(dumps({"type": "finish", "content": ""}))
+            await client.send(dumps({"type": "game_complete", "content": ""}))
     client = MultiplayerClient(msg_handler, port=1301)
     client.start()
     sleep(2)
@@ -61,16 +76,33 @@ async def test8():
 
 
 async def test9():
+    """
+    Connect to server number one with multiplayer client
+    """
     async def msg_handler(msg):
         print("Server sent: " + str(msg))
     client = MultiplayerClient(msg_handler, port=1301)
     client.start()
 
 
+async def test10():
+    """
+    Create an SSM
+    """
+    ssm = None
+
+    async def msg_handler(client, msg):
+        print(f"client {client.id} sent: {msg}")
+
+    server_options = ServerOptions(msg_handler)
+    ssm = StaticServerManager(3)
+    ssm.run(server_options)
+
+
 test_num = input("Which test? ")
 
-while test_num not in ["1","2","3","4","5","6","7","8","9"]:
-    print("Test number must be 1, 2, 3, 4, 5, 6, 7, 8, or 9")
+while test_num not in ["1","2","3","4","5","6","7","8","9","10"]:
+    print("Test number must be 1, 2, 3, 4, 5, 6, 7, 8, 9, or 10")
     test_num = input("Which test? ")
 
 exec(f"run(test{test_num}())")
