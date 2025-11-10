@@ -63,16 +63,15 @@ async def test8():
     """
     Connect to server number one with multiplayer client and finish game after 2 seconds
     """
-    close = False
-    client = None
     async def msg_handler(msg):
         print("Server sent: " + str(msg))
-        if close:
-            await client.send(dumps({"type": "game_complete", "content": ""}))
+
     client = MultiplayerClient(msg_handler, port=1301)
     client.start()
+    print("after start")
     sleep(2)
-    close = True
+    print("closing")
+    await client.send(dumps({"type": "game_complete", "content": ""}))
 
 
 async def test9():

@@ -133,8 +133,8 @@ class TCPMultiplayerServer:
                     msg = loads(msg_json)
                     if msg["type"] == "game_complete" and self.sm_port:
                         await self.game_finished()
-
-                    await self.msg_handler(self, msg, new_client)
+                    else:
+                        await self.msg_handler(self, msg, new_client)
 
             if self.sm_port:
                 msg = dumps({"type": "game_complete", "port": self.port})
