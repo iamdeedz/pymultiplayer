@@ -61,7 +61,7 @@ async def test7():
 
 async def test8():
     """
-
+    Connect to server number one with multiplayer client and finish game after 2 seconds
     """
     close = False
     client = None
