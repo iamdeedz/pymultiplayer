@@ -84,6 +84,7 @@ class StaticServerManager:
 
     async def _run(self, server_options):
 
+        server_options.sm_port = self.port
         for port in self.idle_servers:
             # Start all the servers
             server_options.port = port
