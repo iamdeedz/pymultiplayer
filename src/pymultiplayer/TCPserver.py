@@ -95,6 +95,8 @@ class TCPMultiplayerServer:
         if "uuid" in msg:
             print("uuid in msg")
             # Request is supposedly from server
+            print(msg["uuid"])
+            print(self.sm_uuid)
             if msg["uuid"] != self.sm_uuid:
                 print("not legit")
                 # Request is not legitimate
