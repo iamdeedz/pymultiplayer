@@ -49,7 +49,7 @@ class StaticServerManager:
         async with websockets.connect(f"{self.ws_or_wss}://{self.ip}:{server_port+1}") as websocket:
             await websocket.send(msg)
         self.idle_servers.remove(server_port)
-        self.active_servers.append(server_port)
+        self.active_servers.append({"port": server_port, "parameters": parameters})
 
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
@@ -73,10 +73,12 @@ class StaticServerManager:
                 raise NoParametersGiven()
 
         elif msg["type"] == "game_complete":
-            if msg["port"] in self.active_servers:
-                # First message to remove, server sends as many messages as it has clients so only care about the first one.
-                self.active_servers.remove(msg["port"])
-                self.idle_servers.append(msg["port"])
+            for server in self.active_servers:
+                if server["port"] == msg["port"]:
+                    # First message to remove, server sends as many messages as it has clients so only care about the first one.
+                    [self.active_servers.remove(server) if server["port"] == msg["port"] else None for server in self.active_servers]
+                    self.idle_servers.append(msg["port"])
+                    break
 
     def init_func(self, server_options):
         server = TCPMultiplayerServer(server_options)
