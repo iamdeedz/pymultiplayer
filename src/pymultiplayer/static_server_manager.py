@@ -65,7 +65,11 @@ class StaticServerManager:
                 return
 
             try:
+                new_server_port = self.idle_servers[0]
                 await self.start_game_server(self.idle_servers[0], msg["parameters"])
+                return_msg = dumps({"type": "create", "status": "success", "content": "server_started", "port": new_server_port})
+                await websocket.send(return_msg)
+                await websocket.close()
             except KeyError:
                 return_msg = dumps({"type": "create", "status": "error", "content": "no_parameters_given"})
                 await websocket.send(return_msg)
