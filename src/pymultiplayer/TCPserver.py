@@ -68,11 +68,13 @@ class TCPMultiplayerServer:
     # State Management Functions For Use With Static Server Manager
     async def game_finished(self):
         self.is_idle = True
+        print("idle = true")
         self.last_id = 0
         await self.broadcast(dumps({"type": "goodbye"}))
 
     async def _start_game_func(self, parameters):
         self.is_idle = False
+        print("idle = false")
         await self.start_game_func(self, parameters)
 
     # Server Basics (run/proxy)
@@ -91,8 +93,10 @@ class TCPMultiplayerServer:
             return
 
         if "uuid" in msg:
+            print("uuid in msg")
             # Request is supposedly from server
             if msg["uuid"] != self.sm_uuid:
+                print("not legit")
                 # Request is not legitimate
                 msg = {"type": "error", "content": "UUID is invalid."}
                 await websocket.send(dumps(msg))
@@ -100,7 +104,8 @@ class TCPMultiplayerServer:
                 return
 
             # Request is legitimately from server
-            if msg["type"] == "new_game_parameters":
+            elif msg["type"] == "new_game_parameters":
+                print("starting new game")
                 await self._start_game_func(msg["content"])
 
             await websocket.close()
@@ -132,6 +137,7 @@ class TCPMultiplayerServer:
                 async for msg_json in websocket:
                     msg = loads(msg_json)
                     if msg["type"] == "game_complete" and self.sm_port:
+                        print("game_complete msg received")
                         await self.game_finished()
                     else:
                         await self.msg_handler(self, msg, new_client)
