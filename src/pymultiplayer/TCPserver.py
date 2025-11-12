@@ -12,7 +12,7 @@ async def blank_func(server, client):
 
 
 class ServerOptions:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=None, client_joined_func=None, client_left_func=None, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=None, _is_idle=False):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=blank_func, client_joined_func=blank_func, client_left_func=blank_func, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=blank_func, _is_idle=False):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -23,9 +23,8 @@ class ServerOptions:
         self.ws_or_wss = ws_or_wss
         self.start_game_func = start_game_func
         self.auth_func = auth_func
-
-        self.client_joined_func = client_joined_func if client_joined_func else blank_func
-        self.client_left_func = client_left_func if client_left_func else blank_func
+        self.client_joined_func = client_joined_func
+        self.client_left_func = client_left_func
 
 
 class TCPMultiplayerServer:
