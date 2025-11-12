@@ -88,6 +88,7 @@ class StaticServerManager:
 
         server_options.sm_uuid = self.uuid
         server_options.sm_port = self.port
+        server_options.is_idle = True
         for port in self.idle_servers:
             # Start all the servers
             server_options.port = port
