@@ -7,7 +7,7 @@ from threading import Thread
 from json import dumps, loads
 
 
-async def blank_func(server, client):
+async def blank_func(*args, **kwargs):
     pass
 
 
