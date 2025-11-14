@@ -39,7 +39,7 @@ async def client_left(server, client):
 
 
 if __name__ == "__main__":
-    loop = asyncio.get_running_loop()
+    loop = asyncio.new_event_loop()
     stop = loop.create_future()
     loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
     server_manager = StaticServerManager(2)
