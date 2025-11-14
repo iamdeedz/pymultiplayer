@@ -1,7 +1,6 @@
 from pymultiplayer import TCPMultiplayerServer, StaticServerManager, ServerOptions
 from player import Player
 from json import dumps
-import asyncio, signal
 
 players = list()
 id_to_player = dict()
@@ -39,12 +38,5 @@ async def client_left(server, client):
 
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    stop = loop.create_future()
-    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
     server_manager = StaticServerManager(2)
     server_manager.run(ServerOptions(msg_handler, ip="0.0.0.0", client_joined_func=client_joined, client_left_func=client_left))
-    async def stop_thing():
-        await stop
-    asyncio.run(stop_thing)
-    exit()
