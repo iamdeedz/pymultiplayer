@@ -1,7 +1,7 @@
 from pymultiplayer import TCPMultiplayerServer, StaticServerManager, ServerOptions
 from player import Player
 from json import dumps
-import asyncio
+import asyncio, signal
 
 players = list()
 id_to_player = dict()
