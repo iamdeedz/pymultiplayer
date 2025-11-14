@@ -3,7 +3,7 @@ from subprocess import run
 
 
 def run_http():
-    run(["python", "-m", "http.server", "10000"])
+    run(["python", "-m", "http.server", "8000"])
 
 
 if __name__ == "__main__":
