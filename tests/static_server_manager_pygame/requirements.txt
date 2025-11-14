@@ -1,2 +1,3 @@
 pymultiplayer-0.3.6.dev8-py3-none-any.whl
 asyncio
+signal
