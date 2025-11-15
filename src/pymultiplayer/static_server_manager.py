@@ -88,6 +88,13 @@ class StaticServerManager:
         server = TCPMultiplayerServer(server_options)
         server.run()
 
+    async def run_proxy_with_invalid_msg_except(self, websocket):
+        try:
+            await self.proxy(websocket)
+        except websockets.InvalidMessage as e:
+            await self.invalid_msg_error_func(e)
+            await websocket.close()
+
     async def _run(self, server_options):
 
         server_options.sm_uuid = self.uuid
@@ -101,8 +108,13 @@ class StaticServerManager:
 
         try:
             # Start the actual server manager
-            async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
-                await asyncio.Future()
+            if server_options.invalid_msg_try_except:
+                self.invalid_msg_error_func = server_options.invalid_msg_error_func
+                async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port, process_request=health_check):
+                    await asyncio.Future()
+            else:
+                async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
+                    await asyncio.Future()
 
         except OSError:
             raise PortInUseError(self.port)

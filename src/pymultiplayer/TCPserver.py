@@ -1,6 +1,4 @@
 import websockets, asyncio
-from websockets import InvalidMessage
-
 from ._ws_client import _Client
 from .initial_server import InitialServer
 from .errors import PortInUseError
@@ -96,7 +94,7 @@ class TCPMultiplayerServer:
     async def run_proxy_with_invalid_msg_except(self, websocket):
         try:
             await self.proxy(websocket)
-        except InvalidMessage as e:
+        except websockets.InvalidMessage as e:
             await self.invalid_msg_error_func(e)
             await websocket.close()
 
