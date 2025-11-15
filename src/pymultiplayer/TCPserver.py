@@ -1,4 +1,6 @@
 import websockets, asyncio
+from websockets import InvalidMessage
+
 from ._ws_client import _Client
 from .initial_server import InitialServer
 from .errors import PortInUseError
@@ -12,7 +14,7 @@ async def blank_func(*args, **kwargs):
 
 
 class ServerOptions:
-    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=blank_func, client_joined_func=blank_func, client_left_func=blank_func, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=blank_func, _is_idle=False):
+    def __init__(self, msg_handler, ip="127.0.0.1", port=1300, auth_func=blank_func, client_joined_func=blank_func, client_left_func=blank_func, max_clients=8, sm_port=None, sm_uuid=None, ws_or_wss: str = "ws", start_game_func=blank_func, _is_idle=False, invalid_msg_try_except=False, invalid_msg_error_func=blank_func):
         self.ip = ip
         self.port = port
         self.msg_handler = msg_handler
@@ -25,6 +27,8 @@ class ServerOptions:
         self.auth_func = auth_func
         self.client_joined_func = client_joined_func
         self.client_left_func = client_left_func
+        self.invalid_msg_try_except = invalid_msg_try_except
+        self.invalid_msg_error_func = invalid_msg_error_func
 
 
 class TCPMultiplayerServer:
@@ -41,6 +45,9 @@ class TCPMultiplayerServer:
         self.sm_uuid = options.sm_uuid
         self.ws_or_wss = options.ws_or_wss
         self.start_game_func = options.start_game_func
+
+        self.invalid_msg_try_except = options.invalid_msg_try_except
+        self.invalid_msg_error_func = options.invalid_msg_error_func
 
         self.client_joined_func = options.client_joined_func
         self.client_left_func = options.client_left_func
@@ -77,10 +84,21 @@ class TCPMultiplayerServer:
     # Server Basics (run/proxy)
     async def _run(self):
         try:
-            async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
-                await asyncio.Future()
+            if self.invalid_msg_try_except:
+                async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port + 1, process_request=health_check):
+                    await asyncio.Future()
+            else:
+                async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
+                    await asyncio.Future()
         except OSError:
             raise PortInUseError(self.port)
+
+    async def run_proxy_with_invalid_msg_except(self, websocket):
+        try:
+            await self.proxy(websocket)
+        except InvalidMessage as e:
+            await self.invalid_msg_error_func(e)
+            await websocket.close()
 
     async def proxy(self, websocket):
         msg = loads(await websocket.recv())
