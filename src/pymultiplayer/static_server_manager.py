@@ -105,6 +105,7 @@ class StaticServerManager:
             # Start all the servers
             server_options.port = port
             process = Process(target=self.init_func, args=(server_options,))
+            print("process created")
             process.start()
             print(f"successfully started server with port {port}")
 
