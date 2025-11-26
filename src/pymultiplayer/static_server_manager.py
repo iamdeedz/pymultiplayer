@@ -101,10 +101,12 @@ class StaticServerManager:
         server_options.sm_port = self.port
         server_options.is_idle = True
         for port in self.idle_servers:
+            print(f"starting server with port {port}")
             # Start all the servers
             server_options.port = port
             process = Process(target=self.init_func, args=(server_options,))
             process.start()
+            print(f"successfully started server with port {port}")
 
         try:
             # Start the actual server manager
@@ -114,6 +116,7 @@ class StaticServerManager:
                 async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port, process_request=health_check):
                     await asyncio.Future()
             else:
+                print("normal ssm")
                 async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
                     await asyncio.Future()
 
