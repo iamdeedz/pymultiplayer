@@ -109,6 +109,7 @@ class StaticServerManager:
         try:
             # Start the actual server manager
             if server_options.invalid_msg_try_except:
+                print("abc")
                 self.invalid_msg_error_func = server_options.invalid_msg_error_func
                 async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port, process_request=health_check):
                     await asyncio.Future()
