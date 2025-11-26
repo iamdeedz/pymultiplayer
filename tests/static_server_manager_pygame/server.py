@@ -38,6 +38,7 @@ async def client_left(server, client):
 
 
 if __name__ == "__main__":
+    print("yup1")
     server_manager = StaticServerManager(2)
     server_manager.run(ServerOptions(msg_handler, ip="0.0.0.0", client_joined_func=client_joined, client_left_func=client_left, invalid_msg_try_except=True))
     print("yup")
