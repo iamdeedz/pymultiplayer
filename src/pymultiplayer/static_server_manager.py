@@ -86,7 +86,9 @@ class StaticServerManager:
 
     def init_func(self, server_options):
         server = TCPMultiplayerServer(server_options)
+        print("server created")
         server.run()
+        print("server running")
 
     async def run_proxy_with_invalid_msg_except(self, websocket):
         try:
