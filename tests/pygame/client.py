@@ -18,7 +18,6 @@ async def send_update():
 
 
 async def msg_handler(msg):
-    msg = loads(msg)
     print("Message received: ", msg)
     if msg["type"] == "client_joined":
         other_players.append(Player(msg["content"]+1))

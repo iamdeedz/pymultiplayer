@@ -1,4 +1,4 @@
-from pymultiplayer import TCPMultiplayerServer
+from pymultiplayer import TCPMultiplayerServer, ServerOptions
 from player import Player
 from json import dumps
 
@@ -6,14 +6,14 @@ players = list()
 id_to_player = dict()
 
 
-async def msg_handler(msg, client):
+async def msg_handler(server, msg, client):
     print(f"Client with id {client.id}:", msg["content"])
     players[client.id-1][1] = msg["content"]["x"]
     players[client.id-1][2] = msg["content"]["y"]
     await server.broadcast(dumps(msg))
 
 
-async def client_joined(client):
+async def client_joined(server, client):
     print(f"Client with id {client.id} joined.")
 
     # Tell all existing clients the new client's id
@@ -30,7 +30,7 @@ async def client_joined(client):
     id_to_player[client.id] = player
 
 
-async def client_left(client):
+async def client_left(server, client):
     print(f"Client with id {client.id} left.")
     msg = {"type": "client_left", "content": client.id}
     await server.broadcast(dumps(msg))
@@ -39,7 +39,5 @@ async def client_left(client):
 
 
 if __name__ == "__main__":
-    server = TCPMultiplayerServer(msg_handler)
-    server.set_client_joined_func(client_joined)
-    server.set_client_left_func(client_left)
+    server = TCPMultiplayerServer(ServerOptions(msg_handler, client_joined_func=client_joined, client_left_func=client_left))
     server.run()
