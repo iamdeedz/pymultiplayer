@@ -83,7 +83,9 @@ class TCPMultiplayerServer:
     async def _run(self):
         try:
             if self.invalid_msg_try_except:
+                print("try_except server")
                 async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port + 1, process_request=health_check):
+                    print("in async with")
                     await asyncio.Future()
             else:
                 async with websockets.serve(self.proxy, self.ip, self.port + 1, process_request=health_check):
@@ -93,8 +95,11 @@ class TCPMultiplayerServer:
 
     async def run_proxy_with_invalid_msg_except(self, websocket):
         try:
+            print("starting proxy from invalid msg")
             await self.proxy(websocket)
+            print("proxy done from invalid msgm")
         except websockets.InvalidMessage as e:
+            print("invalid message received")
             await self.invalid_msg_error_func(e)
             await websocket.close()
 
