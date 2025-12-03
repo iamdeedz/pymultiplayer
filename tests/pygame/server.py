@@ -39,5 +39,7 @@ async def client_left(server, client):
 
 
 if __name__ == "__main__":
+    print("creating server")
     server = TCPMultiplayerServer(ServerOptions(msg_handler, ip="0.0.0.0", client_joined_func=client_joined, client_left_func=client_left))
+    print("running servermd")
     server.run()
