@@ -86,9 +86,7 @@ class StaticServerManager:
 
     def init_func(self, server_options):
         server = TCPMultiplayerServer(server_options)
-        print("server created")
         server.run()
-        print("server running")
 
     async def run_proxy_with_invalid_msg_except(self, websocket):
         try:
@@ -103,23 +101,18 @@ class StaticServerManager:
         server_options.sm_port = self.port
         server_options.is_idle = True
         for port in self.idle_servers:
-            print(f"starting server with port {port}")
             # Start all the servers
             server_options.port = port
             process = Process(target=self.init_func, args=(server_options,))
-            print("process created")
             process.start()
-            print(f"successfully started server with port {port}")
 
         try:
             # Start the actual server manager
             if server_options.invalid_msg_try_except:
-                print("abc")
                 self.invalid_msg_error_func = server_options.invalid_msg_error_func
                 async with websockets.serve(self.run_proxy_with_invalid_msg_except, self.ip, self.port, process_request=health_check):
                     await asyncio.Future()
             else:
-                print("normal ssm")
                 async with websockets.serve(self.proxy, self.ip, self.port, process_request=health_check):
                     await asyncio.Future()
 
